@@ -6,7 +6,7 @@ console.log("DATABASE_URL:", process.env.DATABASE_URL); // Debugging
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: false, // Change to `true` if SSL is required
+  ssl: false, // 🔹 Disable SSL since the server doesn't support it
 });
 
 // Test database connection

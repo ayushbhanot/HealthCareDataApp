@@ -8,7 +8,7 @@ const createTables = async () => {
     await pool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
     console.log("✅ UUID extension enabled");
 
-    // 🟢 Step 2: Drop and Recreate Users Table (Fix Missing Columns)
+    // 🟢 Step 2: Drop and Recreate Users Table
     await pool.query(`DROP TABLE IF EXISTS users CASCADE;`);
     await pool.query(`
       CREATE TABLE users (
@@ -17,7 +17,9 @@ const createTables = async () => {
         email VARCHAR(100) UNIQUE NOT NULL,
         password TEXT NOT NULL,
         role VARCHAR(20) CHECK (role IN ('admin', 'doctor', 'staff')) NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW()
+        refresh_token TEXT, -- 🔹 Stores refresh token for persistent login
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
       );
     `);
     console.log("✅ Users table created successfully");
@@ -33,7 +35,9 @@ const createTables = async () => {
         gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')) NOT NULL,
         contact_number VARCHAR(20),
         created_by UUID REFERENCES users(id) ON DELETE SET NULL,
-        created_at TIMESTAMP DEFAULT NOW()
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        deleted_at TIMESTAMP DEFAULT NULL -- 🔹 Soft delete support
       );
     `);
     console.log("✅ Patients table created successfully");
@@ -50,7 +54,13 @@ const createTables = async () => {
         pain BOOLEAN,
         duration VARCHAR(10),
         redness BOOLEAN,
-        created_at TIMESTAMP DEFAULT NOW()
+        itching BOOLEAN, -- 🔹 New field
+        discharge_type VARCHAR(20) CHECK (discharge_type IN ('Clear', 'Sticky')), -- 🔹 New field
+        watering BOOLEAN, -- 🔹 New field
+        redness_duration VARCHAR(10), -- 🔹 New field
+        onset_timeframe VARCHAR(20), -- 🔹 New field
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
       );
     `);
     console.log("✅ Medical History table created successfully");
