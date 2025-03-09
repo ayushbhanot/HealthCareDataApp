@@ -21,8 +21,9 @@ export default function LoginScreen() {
   
       if (response.ok) {
         await SecureStore.setItemAsync("userToken", data.accessToken);
-        await SecureStore.setItemAsync("refreshToken", data.refreshToken); // Store refresh token
-        router.replace("/(tabs)/dashboard"); // Redirect to Dashboard
+        await SecureStore.setItemAsync("refreshToken", data.refreshToken);
+        await SecureStore.setItemAsync("userRole", data.user.role);
+        router.replace("/Dashboard"); // Redirect to Dashboard
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials.");
       }

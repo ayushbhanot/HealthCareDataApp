@@ -9,7 +9,7 @@ export default function Index() {
     const checkAuth = async () => {
       const token = await SecureStore.getItemAsync("userToken");
       if (token) {
-        router.replace("/(tabs)/dashboard"); // Redirect to Dashboard if logged in
+        router.replace("/Dashboard"); // Redirect to Dashboard if logged in
       } else {
         router.replace("/LoginScreen"); // Redirect to Login if NOT logged in
       }

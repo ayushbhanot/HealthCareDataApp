@@ -39,26 +39,43 @@ router.post("/register", authenticateUser, async (req, res) => {
 
 // User Login with Refresh Token
 router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-
-    if (user.rows.length === 0 || !(await bcrypt.compare(password, user.rows[0].password))) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    try {
+      console.log("🔍 Login request received:", req.body); // ✅ Log incoming request
+  
+      const { email, password } = req.body;
+  
+      // Check if user exists
+      const userQuery = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+      if (userQuery.rows.length === 0) {
+        console.log("❌ No user found with email:", email); // ✅ Log missing user
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+  
+      const user = userQuery.rows[0];
+      console.log("✅ User found:", user.email, "Role:", user.role); // ✅ Log found user
+  
+      // Compare password hash
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        console.log("❌ Password mismatch for email:", email); // ✅ Log incorrect password
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+  
+      // Generate JWT Tokens
+      const accessToken = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: "30m" });
+      const refreshToken = jwt.sign({ userId: user.id }, REFRESH_SECRET, { expiresIn: "14d" });
+  
+      refreshTokens.push(refreshToken);
+  
+      console.log("✅ Login successful for:", email); // ✅ Log successful login
+  
+      res.json({ accessToken, refreshToken, user: { id: user.id, email: user.email, role: user.role } });
+    } catch (error) {
+      console.error("❌ Error logging in:", error);
+      res.status(500).json({ message: "Server error" });
     }
-
-    // Generate Access & Refresh Tokens
-    const accessToken = jwt.sign({ userId: user.rows[0].id, role: user.rows[0].role }, JWT_SECRET, { expiresIn: "30m" });
-    const refreshToken = jwt.sign({ userId: user.rows[0].id }, REFRESH_SECRET, { expiresIn: "14d" });
-
-    refreshTokens.push(refreshToken); // Store refresh token temporarily
-
-    res.json({ accessToken, refreshToken, user: { id: user.rows[0].id, email: user.rows[0].email, role: user.rows[0].role } });
-  } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+  });
+  
 
 // Refresh Token Endpoint
 router.post("/refresh-token", (req, res) => {
