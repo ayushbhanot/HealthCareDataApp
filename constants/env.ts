@@ -1,0 +1,1 @@
+export const API_BASE_URL = "http://192.168.40.28:5003"; // Replace with correct IP for local local IP

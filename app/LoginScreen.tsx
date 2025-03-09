@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
+import { API_BASE_URL } from "@/constants/env";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -9,13 +10,27 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    if (email === "doctor@example.com" && password === "password123") {
-      await SecureStore.setItemAsync("userToken", "dummy-jwt-token");
-      router.replace("/(tabs)"); // Redirect to Dashboard
-    } else {
-      Alert.alert("Error", "Invalid credentials.");
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        await SecureStore.setItemAsync("userToken", data.accessToken);
+        await SecureStore.setItemAsync("refreshToken", data.refreshToken); // Store refresh token
+        router.replace("/(tabs)/dashboard"); // Redirect to Dashboard
+      } else {
+        Alert.alert("Login Failed", data.message || "Invalid credentials.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Try again.");
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -26,6 +41,8 @@ export default function LoginScreen() {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
       />
       <TextInput
         style={styles.input}

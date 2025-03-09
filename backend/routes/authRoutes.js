@@ -48,8 +48,8 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate Access & Refresh Tokens
-    const accessToken = jwt.sign({ userId: user.rows[0].id, role: user.rows[0].role }, JWT_SECRET, { expiresIn: "15m" });
-    const refreshToken = jwt.sign({ userId: user.rows[0].id }, REFRESH_SECRET, { expiresIn: "7d" });
+    const accessToken = jwt.sign({ userId: user.rows[0].id, role: user.rows[0].role }, JWT_SECRET, { expiresIn: "30m" });
+    const refreshToken = jwt.sign({ userId: user.rows[0].id }, REFRESH_SECRET, { expiresIn: "14d" });
 
     refreshTokens.push(refreshToken); // Store refresh token temporarily
 
