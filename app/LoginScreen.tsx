@@ -23,7 +23,7 @@ export default function LoginScreen() {
         await SecureStore.setItemAsync("userToken", data.accessToken);
         await SecureStore.setItemAsync("refreshToken", data.refreshToken);
         await SecureStore.setItemAsync("userRole", data.user.role);
-        router.replace("/Dashboard"); // Redirect to Dashboard
+        router.replace("/"); // Redirect to Dashboard
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials.");
       }

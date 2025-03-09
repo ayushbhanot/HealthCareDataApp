@@ -9,7 +9,7 @@ export default function Index() {
     const checkAuth = async () => {
       const token = await SecureStore.getItemAsync("userToken");
       if (token) {
-        router.replace("/Dashboard"); // Redirect to Dashboard if logged in
+        router.replace("/(tabs)"); // ✅ Redirect to the tab navigation
       } else {
         router.replace("/LoginScreen"); // Redirect to Login if NOT logged in
       }
@@ -18,5 +18,5 @@ export default function Index() {
     checkAuth();
   }, []);
 
-  return null; // This prevents rendering anything on this screen
+  return null; // Prevents rendering anything
 }
