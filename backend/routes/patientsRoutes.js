@@ -10,7 +10,7 @@ const router = express.Router();
  */
 router.post("/", authenticateUser, async (req, res) => {
   try {
-    const { first_name, last_name, dob, gender, contact_number, language, next_followup } = req.body;
+    const { first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name, relative_phone_number } = req.body;
 
     // Only doctors and staff can register patients
     if (req.user.role !== "doctor" && req.user.role !== "staff") {
@@ -18,9 +18,12 @@ router.post("/", authenticateUser, async (req, res) => {
     }
 
     const newPatient = await pool.query(
-      `INSERT INTO patients (first_name, last_name, dob, gender, contact_number, language, next_followup, created_by) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [first_name, last_name, dob, gender, contact_number, language, next_followup, req.user.userId]
+      `INSERT INTO patients 
+       (first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name, relative_phone_number, created_by) 
+       VALUES 
+       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+       RETURNING *`,
+      [first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name || null, relative_phone_number || null, req.user.userId]
     );
 
     res.status(201).json({ message: "Patient registered successfully", patient: newPatient.rows[0] });

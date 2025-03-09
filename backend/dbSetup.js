@@ -118,6 +118,8 @@ const createTables = async () => {
         longitude FLOAT, -- 🔹 GIS Location
         latitude FLOAT, -- 🔹 GIS Location
         next_followup DATE, -- 🔹 Follow-up date
+        relative_name VARCHAR(100),
+        relative_phone_number VARCHAR(20),
         created_by UUID REFERENCES users(id) ON DELETE SET NULL,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW(),
