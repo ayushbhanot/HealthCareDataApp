@@ -22,6 +22,23 @@ http://localhost:5003/users/login
 const bcrypt = require("bcryptjs");
 const pool = require("./db");
 
+const setupDatabase = async () => {
+  try {
+    console.log("🛠️ Ensuring database schema is correct...");
+
+    // 🟢 Ensure UUID extension is enabled
+    await pool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+    console.log("✅ UUID extension enabled");
+
+    // 🟢 Ensure `language` column exists in `patients` table
+    await pool.query(`ALTER TABLE patients ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'EN';`);
+    console.log("✅ Added 'language' column to patients table (if missing)");
+  } catch (err) {
+    console.error("❌ Error updating database schema:", err);
+  }
+};
+
+
 const createTestUsers = async () => {
   try {
     // 🔹 Hash passwords
