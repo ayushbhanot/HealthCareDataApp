@@ -58,13 +58,14 @@ export default function PatientsScreen() {
     return (
       <TouchableOpacity
         style={styles.itemContainer}
-        //onPress={() => router.push(`/questionnaire/${item.id}`)} // Navigate to questionnaire page for selected patient
+        onPress={() => router.push(`/questionnaire`)} // Navigate with patient ID
       >
         <Text style={styles.itemText}>{item.first_name} {item.last_name}</Text>
         <Text style={styles.itemSubText}>DOB: {item.dob}</Text>
       </TouchableOpacity>
     );
   };
+  
 
   if (loading) {
     return (
