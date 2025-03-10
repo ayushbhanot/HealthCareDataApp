@@ -4,7 +4,8 @@ export default function Settings() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>This is where settings options will be available.</Text>
+      <Text style={styles.title}>Under Construction! 🚧</Text>
+      <Text style={styles.subtitle}>Soon this is where settings options will be available.</Text>
     </View>
   );
 }
