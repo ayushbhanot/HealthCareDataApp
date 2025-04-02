@@ -276,7 +276,7 @@ const handleStartForm = () => {
               setStep(1);
               resetFields(); // Extract resetting into its own function for clarity
             });
-          }, 2000);
+          }, 2500);
           
         } else {
           console.error('Error registering patient:', data.message);
@@ -331,7 +331,26 @@ const handleStartForm = () => {
   }, [formStarted, showSuccess]);
   
   
-
+  const handleCancel = () => {
+    Alert.alert(
+      'Cancel Registration?',
+      'Are you sure you want to cancel registering this patient? Your entered info will be lost.',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: () => {
+            setFormStarted(false);
+            setShowSuccess(false);
+            setStep(1);
+            resetFields();
+          },
+        },
+      ]
+    );
+  };
+  
 
   // Function to handle fade transition on step change
   const transitionStep = (nextStep: number) => {
@@ -713,11 +732,20 @@ const handleStartForm = () => {
           {step === totalSteps ? 'Register Patient' : 'Next'}
         </Text>
       </TouchableOpacity>
+      
     </>
   )}
 </View>
 
         <AnimatedProgressBar currentStep={step} totalSteps={totalSteps} />
+        {step !== 6 && (
+  <TouchableOpacity
+    style={[styles.orangeButton, { backgroundColor: '#dc2626', marginTop: 30 }]}
+    onPress={handleCancel}
+  >
+    <Text style={styles.buttonText}>Cancel Registration</Text>
+  </TouchableOpacity>
+)}
 
       </View>
     </ScrollView>
@@ -730,7 +758,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     paddingVertical: 20,
-    paddingTop: 100,
+    paddingTop: 75,
   },
   formContainer: {
     width: '90%',
@@ -833,7 +861,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
     overflow: 'hidden',
     marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 0,
     height: 70, // fixes floating
     justifyContent: 'center', // vertically centers on Android
   },
@@ -848,6 +876,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#000',
     height: 44,
+
   },
   
   pickerIcon: {
@@ -862,7 +891,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: '#3a2f54',
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   
   reviewTitle: {
