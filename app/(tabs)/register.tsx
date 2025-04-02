@@ -303,7 +303,8 @@ import {
   Alert,
   Platform,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  Pressable
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -312,6 +313,10 @@ import { API_BASE_URL } from '@/constants/env';
 import { LinearGradient } from 'expo-linear-gradient';
 import LottieView from 'lottie-react-native';
 import AppTextInput from '../../components/AppTextInput';
+import DatePicker from '../../components/AppDatePicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Ionicons } from '@expo/vector-icons';
+
 
 export default function RegisterPatient() {
   // Form Fields
@@ -471,7 +476,7 @@ export default function RegisterPatient() {
             />
             {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
 
-            <Button title="Select Date of Birth" onPress={() => setShowDatePicker(true)} />
+            {/* <Button title="Select Date of Birth" onPress={() => setShowDatePicker(true)} />
             {dob ? <Text>Selected Date: {dob}</Text> : <Text style={styles.errorText}>{errors.dob}</Text>}
             {showDatePicker && (
               <DateTimePicker
@@ -481,18 +486,52 @@ export default function RegisterPatient() {
                 onChange={onChangeDate}
               />
             )}
-            {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+            {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>} */}
+<TouchableOpacity style={styles.orangeButton} onPress={() => setShowDatePicker(true)}>
+  <Text style={styles.buttonText}>
+    {dob ? `Date of Birth: ${dob}` : 'Select Date of Birth'}
+  </Text>
+</TouchableOpacity>
+{errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
 
-            <Picker
-              selectedValue={gender}
-              onValueChange={(itemValue) => setGender(itemValue)}
-              style={[styles.input, errors.gender && styles.errorInput]}
-            >
-              <Picker.Item label="Select Gender" value="" />
-              <Picker.Item label="Male" value="Male" />
-              <Picker.Item label="Female" value="Female" />
-            </Picker>
-            {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
+{errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+
+<DateTimePickerModal
+  isVisible={showDatePicker}
+  mode="date"
+  onConfirm={(date) => {
+    setShowDatePicker(false);
+    const formatted = date.toISOString().split('T')[0];
+    setDob(formatted);
+  }}
+  onCancel={() => setShowDatePicker(false)}
+  maximumDate={new Date()}
+  themeVariant="light"
+  display={Platform.OS === 'ios' ? 'spinner' : 'default'} // 👈 this is key!
+/>
+
+<View style={styles.pickerContainer}>
+  <Picker
+    selectedValue={gender}
+    onValueChange={(itemValue) => setGender(itemValue)}
+    style={styles.picker}
+    itemStyle={styles.pickerItem}
+  >
+    <Picker.Item label="Select Gender" value="" color="#999" />
+    <Picker.Item label="Male" value="Male" color="#000"  />
+    <Picker.Item label="Female" value="Female" color="#000"  />
+  </Picker>
+  <Ionicons
+    name="chevron-down"
+    size={20}
+    color="#666"
+    style={styles.pickerIcon}
+  />
+</View>
+
+
+
+
           </>
         );
       case 2:
@@ -726,4 +765,39 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },  
-});
+
+  
+  pickerContainer: {
+    borderWidth: 1.2,
+    borderColor: '#a81ee6',
+    borderRadius: 8,
+    backgroundColor: '#e0e0e0',
+    overflow: 'hidden',
+    marginTop: 20,
+    marginBottom: 30,
+    height: 70, // fixes floating
+    justifyContent: 'center', // vertically centers on Android
+  },
+  
+  picker: {
+    width: '100%',
+    height: 40,
+    color: '#000', // Android fallback
+  },
+  
+  pickerItem: {
+    fontSize: 15,
+    color: '#000',
+    height: 44,
+  },
+  
+  pickerIcon: {
+    position: 'absolute',
+    right: 10,
+    top: '50%',
+    marginTop: -10,
+  },
+  
+    
+  
+  });

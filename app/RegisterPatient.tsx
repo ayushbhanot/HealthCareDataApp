@@ -15,10 +15,10 @@ export default function RegisterPatient() {
     email: "",
     address: "",
   });
-
-  const handleChange = (key, value) => {
+  const handleChange = (key: keyof typeof form, value: string) => {
     setForm({ ...form, [key]: value });
   };
+  
 
   const handleSubmit = () => {
     if (!form.id || !form.name || !form.dob || !form.phone) {
