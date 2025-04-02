@@ -1,4 +1,4 @@
-package com.anonymous.HealthCareApp
+package com.anonymous.DataCareHealth
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

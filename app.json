@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Data Care Health",
-    "slug": "HealthCareApp",
+    "slug": "data-care-health",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/applogo.png",
@@ -10,14 +10,18 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.HealthCareApp"
+      "bundleIdentifier": "com.anonymous.DataCareHealth",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "CFBundleDisplayName": "Data Care Health"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#281D40"
       },
-      "package": "com.anonymous.HealthCareApp"
+      "package": "com.anonymous.DataCareHealth"
     },
     "web": {
       "bundler": "metro",
