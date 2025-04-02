@@ -12,7 +12,8 @@ import {
   TouchableOpacity,
   Pressable,
   Animated,
-  Easing
+  Easing,
+  Image
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -25,6 +26,7 @@ import DatePicker from '../../components/AppDatePicker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
 import AnimatedProgressBar from '../../components/AnimatedProgressBar';
+import * as ImagePicker from 'expo-image-picker';
 
 
 export default function RegisterPatient() {
@@ -42,11 +44,38 @@ export default function RegisterPatient() {
   const [latitude, setLatitude] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [idImage, setIdImage] = useState<{ uri: string } | null>(null);
+
 
   // Wizard step (1 to 5)
   const [step, setStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6;
 
+
+const pickImage = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    setIdImage(result.assets[0]); // contains `uri` and more
+  }
+};
+
+
+
+const takePhoto = async () => {
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    setIdImage(result.assets[0]);
+  }
+};
 
   // Validate fields for the current step
   const validateStep = () => {
@@ -107,15 +136,15 @@ export default function RegisterPatient() {
   // Navigation handlers
   const handleNext = () => {
     if (validateStep()) {
-      setStep((prev) => prev + 1);
+      transitionStep(step + 1);
     } else {
       Alert.alert('Please fix the errors before continuing.');
     }
   };
 
   const handleBack = () => {
-    if (step > 1) setStep((prev) => prev - 1);
-  };
+    if (step > 1) transitionStep(step - 1);
+  };  
 
   const handleRegisterPatient = async () => {
     // Run full form validation if needed
@@ -186,12 +215,7 @@ export default function RegisterPatient() {
       }).start();
     });
   };
-
-
-
-
-
-  
+ 
   // Render step-specific form
   const renderStep = () => {
     switch (step) {
@@ -300,6 +324,7 @@ export default function RegisterPatient() {
             />
           </>
         );
+        
       case 4:
         return (
           <>
@@ -329,30 +354,118 @@ export default function RegisterPatient() {
             )}
           </>
         );
-      case 5:
+        case 5:
+  return (
+    <View>
+      <Text style={styles.reviewTitle}>Patient ID:</Text>
+
+      {idImage ? (
+       <View style={{ alignItems: 'center', marginBottom: 10 }}>
+       <Image
+         source={{ uri: idImage.uri }}
+         style={{ width: 300, height: 200, borderRadius: 10 }}
+       />
+     </View>
+     
+      ) : (
+        <Text style={{ color: '#ccc', marginBottom: 10 }}>No ID image selected yet</Text>
+      )}
+
+      <TouchableOpacity style={styles.orangeButton} onPress={pickImage}>
+        <Text style={styles.buttonText}>Choose from Library</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.orangeButton} onPress={takePhoto}>
+        <Text style={styles.buttonText}>Take Photo</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+      case 6:
         return (
-          <View>
-            <Text style={styles.reviewTitle}>Review your details:</Text>
-            <Text>First Name: {firstName}</Text>
-            <Text>Last Name: {lastName}</Text>
-            <Text>Date of Birth: {dob}</Text>
-            <Text>Gender: {gender}</Text>
-            <Text>Contact Number: {contactNumber}</Text>
-            <Text>Email: {email}</Text>
-            <Text>Relative's Name: {relativeName}</Text>
-            <Text>Relative's Phone: {relativePhoneNumber}</Text>
-            <Text>Address: {address || 'N/A'}</Text>
-            { !address && (
-              <>
-                <Text>Longitude: {longitude}</Text>
-                <Text>Latitude: {latitude}</Text>
-              </>
-            )}
-          </View>
+<View style={styles.reviewContainer}>
+  <Text style={styles.reviewTitle}>Review your details:</Text>
+
+  <View style={styles.reviewRow}>
+    <Text style={styles.reviewLabel}>First Name:</Text>
+    <Text style={styles.reviewValue}>{firstName}</Text>
+  </View>
+
+  <View style={styles.reviewRow}>
+    <Text style={styles.reviewLabel}>Last Name:</Text>
+    <Text style={styles.reviewValue}>{lastName}</Text>
+  </View>
+
+  <View style={styles.reviewRow}>
+    <Text style={styles.reviewLabel}>Date of Birth:</Text>
+    <Text style={styles.reviewValue}>{dob}</Text>
+  </View>
+
+  <View style={styles.reviewRow}>
+    <Text style={styles.reviewLabel}>Gender:</Text>
+    <Text style={styles.reviewValue}>{gender}</Text>
+  </View>
+
+  <View style={styles.reviewRow}>
+    <Text style={styles.reviewLabel}>Contact Number:</Text>
+    <Text style={styles.reviewValue}>{contactNumber}</Text>
+  </View>
+
+  {!!email && (
+    <View style={styles.reviewRow}>
+      <Text style={styles.reviewLabel}>Email:</Text>
+      <Text style={styles.reviewValue}>{email}</Text>
+    </View>
+  )}
+
+  {!!relativeName && (
+    <View style={styles.reviewRow}>
+      <Text style={styles.reviewLabel}>Relative's Name:</Text>
+      <Text style={styles.reviewValue}>{relativeName}</Text>
+    </View>
+  )}
+
+  {!!relativePhoneNumber && (
+    <View style={styles.reviewRow}>
+      <Text style={styles.reviewLabel}>Relative's Phone:</Text>
+      <Text style={styles.reviewValue}>{relativePhoneNumber}</Text>
+    </View>
+  )}
+
+  <View style={styles.reviewRow}>
+    <Text style={styles.reviewLabel}>Address:</Text>
+    <Text style={styles.reviewValue}>{address || 'N/A'}</Text>
+  </View>
+
+  {!address && (
+    <>
+      <View style={styles.reviewRow}>
+        <Text style={styles.reviewLabel}>Longitude:</Text>
+        <Text style={styles.reviewValue}>{longitude}</Text>
+      </View>
+      <View style={styles.reviewRow}>
+        <Text style={styles.reviewLabel}>Latitude:</Text>
+        <Text style={styles.reviewValue}>{latitude}</Text>
+      </View>
+    </>
+  )}
+  {!!idImage && (
+  <>
+    <Text style={styles.reviewLabel}>Uploaded ID Image:</Text>
+    <Image
+      source={{ uri: idImage.uri }}
+      style={styles.reviewImage}
+      resizeMode="cover"
+    />
+  </>
+)}
+
+</View>
         );
       default:
         return null;
     }
+    
   };
 
   return (
@@ -366,32 +479,33 @@ export default function RegisterPatient() {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Register New Patient</Text>
-        {renderStep()}
+        <Animated.View style={{ opacity: fadeAnim, width: '100%' }}>
+  {renderStep()}
+</Animated.View>
+
 
         <View style={styles.buttonContainer}>
-          {step > 1 && (
-            <Button title="Back" onPress={handleBack} />
-          )}
-          {step < totalSteps && (
-            <TouchableOpacity
-            style={styles.orangeButton}
-            onPress={step === totalSteps ? handleRegisterPatient : handleNext}
-          >
-            <Text style={styles.buttonText}>
-              {step === totalSteps ? 'Register Patient' : 'Next'}
-            </Text>
-          </TouchableOpacity>
-          
-          )}
-          {step === totalSteps && (
-            <Button title="Register Patient" onPress={handleRegisterPatient} />
-          )}
-        </View>
+  {step === 1 ? (
+    <TouchableOpacity style={styles.orangeButton} onPress={handleNext}>
+      <Text style={styles.buttonText}>Next</Text>
+    </TouchableOpacity>
+  ) : (
+    <>
+      <TouchableOpacity style={styles.halfButton} onPress={handleBack}>
+        <Text style={styles.buttonText}>Back</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.halfButton}
+        onPress={step === totalSteps ? handleRegisterPatient : handleNext}
+      >
+        <Text style={styles.buttonText}>
+          {step === totalSteps ? 'Register Patient' : 'Next'}
+        </Text>
+      </TouchableOpacity>
+    </>
+  )}
+</View>
 
-        {/* Progress Bar */}
-        {/* <View style={styles.progressBarContainer}>
-          <View style={[styles.progressBar, { width: `${(step / totalSteps) * 100}%` }]} />
-        </View> */}
         <AnimatedProgressBar currentStep={step} totalSteps={totalSteps} />
 
       </View>
@@ -403,9 +517,9 @@ export default function RegisterPatient() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 20,
+    paddingTop: 100,
   },
   formContainer: {
     width: '90%',
@@ -461,7 +575,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 20,
+    gap: 10,
   },
+  halfButton: {
+    backgroundColor: '#fe7c3f',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+  },
+  
+  
   progressBarContainer: {
     height: 8,
     backgroundColor: '#fff',
@@ -475,11 +599,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fe7c3f',
     borderRadius: 4,
   },  
-  reviewTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   orangeButton: {
     backgroundColor: '#fe7c3f',
     paddingVertical: 12,
@@ -526,6 +645,52 @@ const styles = StyleSheet.create({
     top: '50%',
     marginTop: -10,
   },
+  
+  reviewContainer: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: '#3a2f54',
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  
+  reviewTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 12,
+  },
+  
+  reviewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#555',
+    paddingBottom: 6,
+  },
+  
+  reviewLabel: {
+    color: '#ccc',
+    fontWeight: '600',
+  },
+  
+  reviewValue: {
+    color: '#fff',
+    maxWidth: '60%',
+    textAlign: 'right',
+  },
+  reviewImage: {
+    width: 150,
+    height: 100,
+    borderRadius: 10,
+    marginTop: 10,
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: '#888',
+  },
+  
+  
   
     
   
