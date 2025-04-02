@@ -45,6 +45,12 @@ export default function RegisterPatient() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [idImage, setIdImage] = useState<{ uri: string } | null>(null);
+  const [formStarted, setFormStarted] = useState(false);
+  const formAnim = useState(new Animated.Value(0))[0];
+  const formTranslateY = useState(new Animated.Value(50))[0];
+  const formOpacity = useState(new Animated.Value(0))[0];
+  const [showSuccess, setShowSuccess] = useState(false);
+
 
 
   // Wizard step (1 to 5)
@@ -76,6 +82,29 @@ const takePhoto = async () => {
     setIdImage(result.assets[0]);
   }
 };
+
+const handleStartForm = () => {
+  setFormStarted(true);
+  Animated.parallel([
+    Animated.timing(formTranslateY, {
+      toValue: 0,
+      duration: 1000, // slower
+      delay: 100,     // slight delay to feel more fluid
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }),
+    Animated.timing(formOpacity, {
+      toValue: 1,
+      duration: 1500,
+      delay: 100,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }),
+  ]).start();
+};
+
+
+
 
   // Validate fields for the current step
   const validateStep = () => {
@@ -215,6 +244,37 @@ const takePhoto = async () => {
       }).start();
     });
   };
+
+  if (!formStarted) {
+    return (
+      <LinearGradient
+        colors={['#1b0d2e', '#2b1550', '#3e207a']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+      >
+        <TouchableOpacity onPress={handleStartForm} style={{ alignItems: 'center' }}>
+  <Ionicons name="add-circle" size={130} color="#fe7c3f" />
+  <Text style={{
+    color: '#fe7c3f',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 4,
+  }}>
+    Register Patient
+  </Text>
+</TouchableOpacity>
+
+      </LinearGradient>
+    );
+  }
+  
+  
+
+  
  
   // Render step-specific form
   const renderStep = () => {
@@ -479,7 +539,14 @@ const takePhoto = async () => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Register New Patient</Text>
-        <Animated.View style={{ opacity: fadeAnim, width: '100%' }}>
+        <Animated.View
+  style={{
+    opacity: formOpacity,
+    transform: [{ translateY: formTranslateY }],
+    width: '100%',
+  }}
+>
+
   {renderStep()}
 </Animated.View>
 
