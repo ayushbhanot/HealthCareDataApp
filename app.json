@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "HealthCareApp",
+    "name": "Data Care Health",
     "slug": "HealthCareApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/applogo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,8 +15,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#281D40"
+      },
+      "package": "com.anonymous.HealthCareApp"
     },
     "web": {
       "bundler": "metro",
@@ -31,7 +32,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#281D40"
         }
       ],
       "expo-secure-store"

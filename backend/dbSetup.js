@@ -128,6 +128,12 @@ const createTables = async () => {
     `);
     console.log("✅ Patients table checked");
 
+    await pool.query(`
+      ALTER TABLE patients ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE SET NULL;
+    `);
+    console.log("✅ Added missing 'created_by' column to patients");
+    
+
     // 🔹 Ensure missing columns are added without deleting data
     await pool.query(`ALTER TABLE patients ADD COLUMN IF NOT EXISTS email VARCHAR(100);`);
     await pool.query(`ALTER TABLE patients ADD COLUMN IF NOT EXISTS longitude FLOAT;`);

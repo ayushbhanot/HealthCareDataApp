@@ -75,6 +75,8 @@ import {
 } from 'react-native-gesture-handler';
 import { View, StyleSheet } from 'react-native';
 
+
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -100,9 +102,12 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded && !checkingAuth) {
       SplashScreen.hideAsync();
-      if (isAuthenticated === false) {
-        router.replace("/LoginScreen"); // Redirect once auth check completes
-      }
+      setTimeout(async () => {
+        await SplashScreen.hideAsync();
+        if (isAuthenticated === false) {
+          router.replace("/LoginScreen"); // Redirect once auth check completes
+        }
+      }, 0);
     }
   }, [loaded, isAuthenticated, checkingAuth]);
 
