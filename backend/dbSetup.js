@@ -104,29 +104,31 @@ const createTables = async () => {
     `);
     console.log("✅ Users table checked");
 
-    // 🟢 Step 3: Patients Table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS patients (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL,
-        dob DATE NOT NULL,
-        gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')) NOT NULL,
-        contact_number VARCHAR(20),
-        email VARCHAR(100), -- 🔹 Added for optional email
-        language VARCHAR(10) DEFAULT 'EN',
-        longitude FLOAT, -- 🔹 GIS Location
-        latitude FLOAT, -- 🔹 GIS Location
-        next_followup DATE, -- 🔹 Follow-up date
-        relative_name VARCHAR(100),
-        relative_phone_number VARCHAR(20),
-        created_by UUID REFERENCES users(id) ON DELETE SET NULL,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW(),
-        deleted_at TIMESTAMP DEFAULT NULL
-      );
-    `);
-    console.log("✅ Patients table checked");
+// 🟢 Step 3: Patients Table (UUID primary key)
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS patients (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    dob DATE NOT NULL,
+    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')) NOT NULL,
+    contact_number VARCHAR(20),
+    email VARCHAR(100),
+    language VARCHAR(10) DEFAULT 'EN',
+    longitude FLOAT,
+    latitude FLOAT,
+    next_followup DATE,
+    relative_name VARCHAR(100),
+    relative_phone_number VARCHAR(20),
+    id_image_url TEXT, -- ✅ Image ID support
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP DEFAULT NULL
+  );
+`);
+console.log("✅ Patients table updated with UUID and image support");
+
 
     await pool.query(`
       ALTER TABLE patients ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE SET NULL;

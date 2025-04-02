@@ -4,13 +4,28 @@ const authenticateUser = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+const multer = require('multer');
+const path = require('path');
+
+// Storage config
+const storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
+
 /**
  * Register a New Patient (POST /patients)
  * Only doctors & staff can register patients
  */
-router.post("/", authenticateUser, async (req, res) => {
+router.post("/", authenticateUser, upload.single("id_image"), async (req, res) => {
   try {
     const { first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name, relative_phone_number } = req.body;
+
+    const id_image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
     // Only doctors and staff can register patients
     if (req.user.role !== "doctor" && req.user.role !== "staff") {
@@ -19,11 +34,24 @@ router.post("/", authenticateUser, async (req, res) => {
 
     const newPatient = await pool.query(
       `INSERT INTO patients 
-       (first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name, relative_phone_number, created_by) 
-       VALUES 
-       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-       RETURNING *`,
-      [first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name || null, relative_phone_number || null, req.user.userId]
+      (first_name, last_name, dob, gender, contact_number, language, next_followup, 
+       relative_name, relative_phone_number, id_image_url, created_by) 
+      VALUES 
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *`,
+      [
+        first_name,
+        last_name,
+        dob,
+        gender,
+        contact_number,
+        language,
+        next_followup,
+        relative_name || null,
+        relative_phone_number || null,
+        id_image_url,
+        req.user.userId,
+      ]
     );
 
     res.status(201).json({ message: "Patient registered successfully", patient: newPatient.rows[0] });

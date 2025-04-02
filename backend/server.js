@@ -7,6 +7,8 @@ const patientRoutes = require("./routes/patientsRoutes");
 
 
 const app = express();
+app.use("/uploads", express.static("uploads"));
+
 
 // Debugging: Check if JWT_SECRET is loaded
 console.log("🔍 JWT_SECRET:", process.env.JWT_SECRET); 
