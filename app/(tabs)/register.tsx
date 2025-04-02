@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -27,6 +26,8 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
 import AnimatedProgressBar from '../../components/AnimatedProgressBar';
 import * as ImagePicker from 'expo-image-picker';
+import celebrationAnimation from '../../assets/animations/celebration.json';
+
 
 
 export default function RegisterPatient() {
@@ -69,6 +70,12 @@ const pickImage = async () => {
     setIdImage(result.assets[0]); // contains `uri` and more
   }
 };
+
+useEffect(() => {
+  if (showSuccess) {
+    console.log('🎉 Show success triggered!');
+  }
+}, [showSuccess]);
 
 
 
@@ -175,11 +182,51 @@ const handleStartForm = () => {
     if (step > 1) transitionStep(step - 1);
   };  
 
+  // const handleRegisterPatient = async () => {
+  //   // Run full form validation if needed
+  //   if (validateStep()) {
+  //     try {
+  //       const token = await SecureStore.getItemAsync("userToken");
+  //       const response = await fetch(`${API_BASE_URL}/patients`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': `Bearer ${token}`,
+  //         },
+  //         body: JSON.stringify({
+  //           first_name: firstName,
+  //           last_name: lastName,
+  //           dob,
+  //           gender,
+  //           contact_number: contactNumber,
+  //           relative_name: relativeName,
+  //           relative_phone_number: relativePhoneNumber,
+  //           email,
+  //           address,
+  //           longitude,
+  //           latitude,
+  //         }),
+  //       });
+
+  //       const data = await response.json();
+  //       if (response.ok) {
+  //         Alert.alert('Patient registered successfully');
+  //       } else {
+  //         console.error('Error registering patient:', data.message);
+  //         Alert.alert('Error', data.message || 'Something went wrong while registering the patient.');
+  //       }
+  //     } catch (error) {
+  //       console.error('Network Error:', error);
+  //       Alert.alert('Error', 'Failed to register patient. Please try again later.');
+  //     }
+  //   }
+  // };
+
   const handleRegisterPatient = async () => {
-    // Run full form validation if needed
     if (validateStep()) {
       try {
         const token = await SecureStore.getItemAsync("userToken");
+  
         const response = await fetch(`${API_BASE_URL}/patients`, {
           method: 'POST',
           headers: {
@@ -200,10 +247,37 @@ const handleStartForm = () => {
             latitude,
           }),
         });
-
+  
         const data = await response.json();
         if (response.ok) {
-          Alert.alert('Patient registered successfully');
+          setShowSuccess(true);
+          setTimeout(() => {
+            animationRef.current?.play();
+          }, 0)
+
+
+          Animated.timing(successFadeAnim, {
+            toValue: 1,
+            duration: 600,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }).start();
+          
+          // Reset after 4.5s (longer to show animation)
+          setTimeout(() => {
+            Animated.timing(successFadeAnim, {
+              toValue: 0,
+              duration: 600,
+              easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
+            }).start(() => {
+              setShowSuccess(false);
+              setFormStarted(false);
+              setStep(1);
+              resetFields(); // Extract resetting into its own function for clarity
+            });
+          }, 2000);
+          
         } else {
           console.error('Error registering patient:', data.message);
           Alert.alert('Error', data.message || 'Something went wrong while registering the patient.');
@@ -214,7 +288,22 @@ const handleStartForm = () => {
       }
     }
   };
-
+  
+  const resetFields = () => {
+    setFirstName('');
+    setLastName('');
+    setDob('');
+    setGender('');
+    setContactNumber('');
+    setRelativeName('');
+    setRelativePhoneNumber('');
+    setEmail('');
+    setAddress('');
+    setLongitude('');
+    setLatitude('');
+    setIdImage(null);
+  };
+  
   const onChangeDate = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
@@ -223,8 +312,25 @@ const handleStartForm = () => {
   };
 
   const [progressAnim] = useState(new Animated.Value(0)); // starts at 0
-  const [fadeAnim] = useState(new Animated.Value(1));
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const successFadeAnim = useRef(new Animated.Value(0)).current;
+  const animationRef = useRef<LottieView>(null);
 
+
+
+  useEffect(() => {
+    if (formStarted && !showSuccess) {
+      fadeAnim.setValue(0); // reset before animating
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [formStarted, showSuccess]);
+  
+  
 
 
   // Function to handle fade transition on step change
@@ -271,10 +377,6 @@ const handleStartForm = () => {
       </LinearGradient>
     );
   }
-  
-  
-
-  
  
   // Render step-specific form
   const renderStep = () => {
@@ -528,6 +630,47 @@ const handleStartForm = () => {
     
   };
 
+  if (showSuccess) {
+    return (
+      <LinearGradient
+        colors={['#1b0d2e', '#2b1550', '#3e207a']}
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Animated.View
+          style={{
+            opacity: successFadeAnim,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+<LottieView
+  ref={animationRef}
+  source={celebrationAnimation}
+  loop={false}
+  style={{ width: 300, height: 300 }}
+/>
+
+
+
+
+          <Text
+            style={{
+              fontSize: 26,
+              color: '#fe7c3f',
+              fontWeight: 'bold',
+              marginTop: 20,
+              textAlign: 'center',
+            }}
+          >
+            Patient Registered!
+          </Text>
+        </Animated.View>
+      </LinearGradient>
+    );
+  }
+  
+  
+  
   return (
   <LinearGradient
   colors={['#1b0d2e', '#2b1550', '#3e207a']}
@@ -541,11 +684,12 @@ const handleStartForm = () => {
         <Text style={styles.title}>Register New Patient</Text>
         <Animated.View
   style={{
-    opacity: formOpacity,
+    opacity: fadeAnim,
     transform: [{ translateY: formTranslateY }],
     width: '100%',
   }}
 >
+
 
   {renderStep()}
 </Animated.View>
