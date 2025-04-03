@@ -221,74 +221,155 @@ const handleStartForm = () => {
   //     }
   //   }
   // };
+//OLD REGISTER PATIENT
+  // const handleRegisterPatient = async () => {
+  //   if (validateStep()) {
+  //     try {
+  //       const token = await SecureStore.getItemAsync("userToken");
+  
+  //       const response = await fetch(`${API_BASE_URL}/patients`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': `Bearer ${token}`,
+  //         },
+  //         body: JSON.stringify({
+  //           first_name: firstName,
+  //           last_name: lastName,
+  //           dob,
+  //           gender,
+  //           contact_number: contactNumber,
+  //           relative_name: relativeName,
+  //           relative_phone_number: relativePhoneNumber,
+  //           email,
+  //           address,
+  //           longitude,
+  //           latitude,
+  //         }),
+  //       });
+
+        
+  
+  //       const data = await response.json();
+  //       if (response.ok) {
+  //         setShowSuccess(true);
+  //         setTimeout(() => {
+  //           animationRef.current?.play();
+  //         }, 0)
+
+
+  //         Animated.timing(successFadeAnim, {
+  //           toValue: 1,
+  //           duration: 600,
+  //           easing: Easing.out(Easing.ease),
+  //           useNativeDriver: true,
+  //         }).start();
+          
+  //         // Reset after 4.5s (longer to show animation)
+  //         setTimeout(() => {
+  //           Animated.timing(successFadeAnim, {
+  //             toValue: 0,
+  //             duration: 600,
+  //             easing: Easing.out(Easing.ease),
+  //             useNativeDriver: true,
+  //           }).start(() => {
+  //             setShowSuccess(false);
+  //             setFormStarted(false);
+  //             setStep(1);
+  //             resetFields(); // Extract resetting into its own function for clarity
+  //           });
+  //         }, 2500);
+          
+  //       } else {
+  //         console.error('Error registering patient:', data.message);
+  //         Alert.alert('Error', data.message || 'Something went wrong while registering the patient.');
+  //       }
+  //     } catch (error) {
+  //       console.error('Network Error:', error);
+  //       Alert.alert('Error', 'Failed to register patient. Please try again later.');
+  //     }
+  //   }
+  // };
 
   const handleRegisterPatient = async () => {
-    if (validateStep()) {
-      try {
-        const token = await SecureStore.getItemAsync("userToken");
-  
-        const response = await fetch(`${API_BASE_URL}/patients`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            first_name: firstName,
-            last_name: lastName,
-            dob,
-            gender,
-            contact_number: contactNumber,
-            relative_name: relativeName,
-            relative_phone_number: relativePhoneNumber,
-            email,
-            address,
-            longitude,
-            latitude,
-          }),
-        });
-  
-        const data = await response.json();
-        if (response.ok) {
-          setShowSuccess(true);
-          setTimeout(() => {
-            animationRef.current?.play();
-          }, 0)
+  if (!validateStep()) return;
 
+  try {
+    const token = await SecureStore.getItemAsync("userToken");
 
-          Animated.timing(successFadeAnim, {
-            toValue: 1,
-            duration: 600,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }).start();
-          
-          // Reset after 4.5s (longer to show animation)
-          setTimeout(() => {
-            Animated.timing(successFadeAnim, {
-              toValue: 0,
-              duration: 600,
-              easing: Easing.out(Easing.ease),
-              useNativeDriver: true,
-            }).start(() => {
-              setShowSuccess(false);
-              setFormStarted(false);
-              setStep(1);
-              resetFields(); // Extract resetting into its own function for clarity
-            });
-          }, 2500);
-          
-        } else {
-          console.error('Error registering patient:', data.message);
-          Alert.alert('Error', data.message || 'Something went wrong while registering the patient.');
-        }
-      } catch (error) {
-        console.error('Network Error:', error);
-        Alert.alert('Error', 'Failed to register patient. Please try again later.');
-      }
+    const formData = new FormData();
+    formData.append("first_name", firstName);
+    formData.append("last_name", lastName);
+    formData.append("dob", dob);
+    formData.append("gender", gender);
+    formData.append("contact_number", contactNumber);
+    formData.append("relative_name", relativeName);
+    formData.append("relative_phone_number", relativePhoneNumber);
+    formData.append("email", email);
+    formData.append("address", address);
+    formData.append("longitude", longitude);
+    formData.append("latitude", latitude);
+
+    if (idImage) {
+      formData.append("id_image", {
+        uri: idImage.uri,
+        name: "id_image.jpg",
+        type: "image/jpeg",
+      } as any);
     }
-  };
-  
+
+    const response = await fetch(`${API_BASE_URL}/patients`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // 'Content-Type' is set automatically by React Native
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("✅ Patient registered:", data.patient);
+      setShowSuccess(true);
+    
+      // Trigger animation after state update
+      setTimeout(() => {
+        animationRef.current?.play();
+      }, 0);
+    
+      Animated.timing(successFadeAnim, {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    
+      setTimeout(() => {
+        Animated.timing(successFadeAnim, {
+          toValue: 0,
+          duration: 600,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }).start(() => {
+          setShowSuccess(false);
+          setFormStarted(false);
+          setStep(1);
+          resetFields();
+        });
+      }, 2500);
+    }
+    else {
+      console.error("❌ Backend error:", data.message);
+      Alert.alert("Error", data.message || "Registration failed.");
+    }
+  } catch (error) {
+    console.error("❌ Network error:", error);
+    Alert.alert("Error", "Failed to register patient.");
+  }
+};
+
+
   const resetFields = () => {
     setFirstName('');
     setLastName('');
