@@ -23,7 +23,21 @@ const upload = multer({ storage });
  */
 router.post("/", authenticateUser, upload.single("id_image"), async (req, res) => {
   try {
-    const { first_name, last_name, dob, gender, contact_number, language, next_followup, relative_name, relative_phone_number } = req.body;
+    const {
+      first_name,
+      last_name,
+      dob,
+      gender,
+      contact_number,
+      language,
+      next_followup,
+      relative_name,
+      relative_phone_number,
+      address,
+      longitude,
+      latitude
+    } = req.body;
+    
 
     const id_image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -35,9 +49,9 @@ router.post("/", authenticateUser, upload.single("id_image"), async (req, res) =
     const newPatient = await pool.query(
       `INSERT INTO patients 
       (first_name, last_name, dob, gender, contact_number, language, next_followup, 
-       relative_name, relative_phone_number, id_image_url, created_by) 
+       relative_name, relative_phone_number, id_image_url, address, longitude, latitude, created_by) 
       VALUES 
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
       [
         first_name,
@@ -50,9 +64,13 @@ router.post("/", authenticateUser, upload.single("id_image"), async (req, res) =
         relative_name || null,
         relative_phone_number || null,
         id_image_url,
+        address || null,
+        longitude || null,
+        latitude || null,
         req.user.userId,
       ]
     );
+    
 
     res.status(201).json({ message: "Patient registered successfully", patient: newPatient.rows[0] });
   } catch (error) {

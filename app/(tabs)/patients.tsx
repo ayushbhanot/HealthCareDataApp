@@ -251,6 +251,7 @@ type Patient = {
   dob: string;
   gender: string;
   id_image_url?: string;
+  address?: string;
 };
 
 // Import your default image asset
@@ -258,33 +259,36 @@ const defaultImage = require('../../assets/images/defaultProfile.png');
 
 const PatientCard = ({ patient }: { patient: Patient }) => {
   const router = useRouter();
+
+  const formattedDob = new Date(patient.dob).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  
   return (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => router.push(`/questionnaire?id=${patient.id}`)}
-    >
-      <Image
-        source={
-          patient.id_image_url
-            ? { uri: `${API_BASE_URL}${patient.id_image_url}` }
-            : defaultImage
-        }
-        style={styles.profileImage}
-        resizeMode="cover"
-      />
-      <View style={styles.detailsContainer}>
-        <Text style={styles.itemText}>
-          {patient.first_name} {patient.last_name}
-        </Text>
-        <Text style={styles.idText}>ID: {patient.id}</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.itemSubText}>DOB: {patient.dob}</Text>
-          <Text style={styles.itemSubText}>Gender: {patient.gender}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <TouchableOpacity style={styles.card}>
+  <Image
+    source={patient.id_image_url ? { uri: `${API_BASE_URL}${patient.id_image_url}` } : defaultImage}
+    style={styles.avatar}
+  />
+  <View style={styles.info}>
+    <Text style={styles.name}>{patient.first_name} {patient.last_name}</Text>
+    <View style={styles.row}>
+      <Text style={styles.subText}>DOB: {formattedDob}</Text>
+      <Text style={styles.subText}>⚥: {patient.gender}</Text>
+    </View>
+    {!!patient.address && (
+      <Text numberOfLines={1} ellipsizeMode="tail" style={styles.subText}>
+        Address: {patient.address}
+      </Text>
+    )}
+  </View>
+</TouchableOpacity>
+
   );
 };
+
 
 export default function PatientsScreen() {
   const router = useRouter();
@@ -449,4 +453,47 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 16,
   },
+
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#2f2542',
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 12,
+    marginBottom: 10,
+    borderColor: '#a81ee6',
+    borderWidth: 1.2,
+    shadowColor: '#a81ee6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: '#fe7c3f',
+  },
+  info: {
+    flex: 1,
+  },
+  name: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  subText: {
+    fontSize: 13,
+    color: '#ccc',
+  },
+  
 });
