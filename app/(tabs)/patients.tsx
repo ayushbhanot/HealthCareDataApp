@@ -471,8 +471,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: 50,
-    height: 50,
+    width: 100,
+    height: 60,
     borderRadius: 8,
     marginRight: 12,
     borderWidth: 2,
@@ -480,11 +480,15 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   },
+  
   name: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
@@ -493,7 +497,12 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: 13,
-    color: '#ccc',
+    color: '#fe7c3f',
+    fontWeight: '600',
+    marginTop: 2,
+    fontStyle: 'normal',
+    
   },
+  
   
 });
