@@ -64,6 +64,13 @@ export default function RootLayout() {
             headerTitleAlign: 'center',
           }}
         />
+<Stack.Screen
+  name="patients/[id]"
+  options={{ headerShown: false }} // 🔥 hide the default
+/>
+
+
+
       </Stack>
       <StatusBar />
     </>
