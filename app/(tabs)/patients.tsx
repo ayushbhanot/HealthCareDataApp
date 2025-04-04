@@ -41,7 +41,8 @@ const PatientCard = ({ patient }: { patient: Patient }) => {
   });
   
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card}
+    onPress={() => router.push(`/patients/${patient.id}`)}>
   <Image
     source={patient.id_image_url ? { uri: `${API_BASE_URL}${patient.id_image_url}` } : defaultImage}
     style={styles.avatar}
