@@ -9,7 +9,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function PatientDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-
   const [patient, setPatient] = useState<any>(null);
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function PatientDetailScreen() {
 
   return (
     <View style={styles.screen}>
-      {/* Custom Header */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
@@ -41,51 +40,82 @@ export default function PatientDetailScreen() {
         <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
       </View>
 
-      {/* Gradient card container */}
-      <LinearGradient
-        colors={['#240046', '#5a189a', '#9d4edd']}
-        style={styles.card}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>Patient Details</Text>
-          <Text style={styles.label}>ID:</Text>
-          <Text style={styles.value}>{id}</Text>
-
-          {patient && (
-            <>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>{patient.first_name} {patient.last_name}</Text>
-
-              <Text style={styles.label}>Gender:</Text>
-              <Text style={styles.value}>{patient.gender}</Text>
-
-              <Text style={styles.label}>DOB:</Text>
-              <Text style={styles.value}>
-                {new Date(patient.dob).toLocaleDateString('en-US')}
-              </Text>
-
-              {!!patient.address && (
-                <>
-                  <Text style={styles.label}>Address:</Text>
-                  <Text style={styles.value}>{patient.address}</Text>
-                </>
-              )}
-
-              {patient.id_image_url && (
-                <>
-                  <Text style={styles.label}>ID Image:</Text>
-                  <Image
-                    source={{ uri: `${API_BASE_URL}${patient.id_image_url}` }}
-                    style={styles.idImage}
-                  />
-                </>
-              )}
-            </>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <LinearGradient
+          colors={['#240046', '#5a189a', '#9d4edd']}
+          style={styles.card}
+        >
+          {/* ID Image */}
+          {patient?.id_image_url && (
+            <Image
+              source={{ uri: `${API_BASE_URL}${patient.id_image_url}` }}
+              style={styles.idImage}
+            />
           )}
-        </ScrollView>
-      </LinearGradient>
+
+          {/* Name */}
+          <Text style={styles.name}>{patient?.first_name} {patient?.last_name}</Text>
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Two-column grid */}
+
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Gender</Text>
+            <Text style={styles.value}>{patient?.gender}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>DOB</Text>
+            <Text style={styles.value}>
+              {patient?.dob && new Date(patient.dob).toLocaleDateString('en-US')}
+            </Text>
+          </View>
+
+          {patient?.contact_number && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Phone</Text>
+              <Text style={styles.value}>{patient.contact_number}</Text>
+            </View>
+          )}
+
+          {patient?.relative_name && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Relative</Text>
+              <Text style={styles.value}>{patient.relative_name}</Text>
+            </View>
+          )}
+
+          {patient?.relative_phone_number && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Relative No.</Text>
+              <Text style={styles.value}>{patient.relative_phone_number}</Text>
+            </View>
+          )}
+
+          {patient?.language && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Language</Text>
+              <Text style={styles.value}>{patient.language}</Text>
+            </View>
+          )}
+
+          {patient?.address && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Address</Text>
+              <Text style={styles.value}>{patient.address}</Text>
+            </View>
+          )}
+        </LinearGradient>\
+        <TouchableOpacity
+  style={styles.editButton}
+ //onPress={() => router.push(`/edit/${id}`)} // or whatever route you choose
+>
+  <Text style={styles.editButtonText}>Edit Patient Info</Text>
+</TouchableOpacity>
+
+      </ScrollView>
     </View>
   );
 }
@@ -93,7 +123,11 @@ export default function PatientDetailScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#1b0d2e', // Dark background
+    backgroundColor: '#1b0d2e',
+  },
+  scroll: {
+    padding: 20,
+    paddingBottom: 40,
   },
   header: {
     height: 90,
@@ -117,35 +151,66 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   card: {
-    flex: 1,
-    margin: 20,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
-  },
-  content: {
-    paddingBottom: 40,
-  },
-  title: {
-    fontSize: 24,
-    color: '#fe7c3f',
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  label: {
-    color: '#ddd',
-    fontWeight: '600',
-    marginTop: 12,
-  },
-  value: {
-    color: '#fff',
-    fontSize: 16,
   },
   idImage: {
     width: '100%',
-    height: 180,
-    marginTop: 10,
-    borderRadius: 10,
-    borderWidth: 1,
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 2,
     borderColor: '#fe7c3f',
   },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fe7c3f',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ffffff33',
+    marginVertical: 10,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 6,
+  },
+  label: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#ccc',
+    width: '45%',
+  },
+  value: {
+    fontSize: 15,
+    color: '#fff',
+    width: '50%',
+    textAlign: 'right',
+  },
+
+  editButton: {
+    marginHorizontal: 0,
+    marginTop: 10,
+    backgroundColor: '#fe7c3f',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+    width: '100%'
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
 });
