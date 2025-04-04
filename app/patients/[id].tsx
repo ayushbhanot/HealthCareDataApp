@@ -4,13 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '@/constants/env';
 import * as SecureStore from 'expo-secure-store';
-
-export const screenOptions = {
-  headerShown: false,
-};
-export const options = {
-  headerShown: false,
-};
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PatientDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -38,94 +32,98 @@ export default function PatientDetailScreen() {
   }, [id]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.screen}>
       {/* Custom Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require('../../assets/images/icon.png')}
-            style={styles.logo}
-          />
-        </View>
+        <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Patient Details</Text>
-        <Text style={styles.label}>ID:</Text>
-        <Text style={styles.value}>{id}</Text>
+      {/* Gradient card container */}
+      <LinearGradient
+        colors={['#240046', '#5a189a', '#9d4edd']}
+        style={styles.card}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text style={styles.title}>Patient Details</Text>
+          <Text style={styles.label}>ID:</Text>
+          <Text style={styles.value}>{id}</Text>
 
-        {patient && (
-          <>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{patient.first_name} {patient.last_name}</Text>
+          {patient && (
+            <>
+              <Text style={styles.label}>Name:</Text>
+              <Text style={styles.value}>{patient.first_name} {patient.last_name}</Text>
 
-            <Text style={styles.label}>Gender:</Text>
-            <Text style={styles.value}>{patient.gender}</Text>
+              <Text style={styles.label}>Gender:</Text>
+              <Text style={styles.value}>{patient.gender}</Text>
 
-            <Text style={styles.label}>DOB:</Text>
-            <Text style={styles.value}>
-              {new Date(patient.dob).toLocaleDateString('en-US')}
-            </Text>
+              <Text style={styles.label}>DOB:</Text>
+              <Text style={styles.value}>
+                {new Date(patient.dob).toLocaleDateString('en-US')}
+              </Text>
 
-            {!!patient.address && (
-              <>
-                <Text style={styles.label}>Address:</Text>
-                <Text style={styles.value}>{patient.address}</Text>
-              </>
-            )}
+              {!!patient.address && (
+                <>
+                  <Text style={styles.label}>Address:</Text>
+                  <Text style={styles.value}>{patient.address}</Text>
+                </>
+              )}
 
-            {patient.id_image_url && (
-              <>
-                <Text style={styles.label}>ID Image:</Text>
-                <Image
-                  source={{ uri: `${API_BASE_URL}${patient.id_image_url}` }}
-                  style={styles.idImage}
-                />
-              </>
-            )}
-          </>
-        )}
-      </ScrollView>
+              {patient.id_image_url && (
+                <>
+                  <Text style={styles.label}>ID Image:</Text>
+                  <Image
+                    source={{ uri: `${API_BASE_URL}${patient.id_image_url}` }}
+                    style={styles.idImage}
+                  />
+                </>
+              )}
+            </>
+          )}
+        </ScrollView>
+      </LinearGradient>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: '#1b0d2e',
+    backgroundColor: '#1b0d2e', // Dark background
   },
   header: {
     height: 90,
-    paddingTop: 60, // for safe area
+    paddingTop: 50,
     backgroundColor: '#241b35',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     position: 'relative',
   },
   backButton: {
     position: 'absolute',
-    left: 12,
-    top: 55,
+    left: 16,
+    top: 50,
     zIndex: 10,
-  },
-  logoWrapper: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   logo: {
     height: 36,
     width: 120,
     resizeMode: 'contain',
   },
-  content: {
+  card: {
+    flex: 1,
+    margin: 20,
+    borderRadius: 16,
     padding: 20,
+  },
+  content: {
+    paddingBottom: 40,
   },
   title: {
     fontSize: 24,
@@ -134,7 +132,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: '#aaa',
+    color: '#ddd',
     fontWeight: '600',
     marginTop: 12,
   },
