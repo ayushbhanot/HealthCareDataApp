@@ -7,7 +7,7 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
-  Platform
+  Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -16,9 +16,7 @@ import AppTextInput from '@/components/AppTextInput';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
-import { Appearance } from 'react-native';
-
-
+import * as ImagePicker from 'expo-image-picker';
 
 export default function EditPatientScreen() {
   const { id } = useLocalSearchParams();
@@ -35,7 +33,8 @@ export default function EditPatientScreen() {
   const [relativeName, setRelativeName] = useState('');
   const [relativePhone, setRelativePhone] = useState('');
   const [address, setAddress] = useState('');
-  const [language, setLanguage] = useState('');
+  const [email, setEmail] = useState('');
+  const [idImage, setIdImage] = useState<{ uri: string } | null>(null);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -54,7 +53,10 @@ export default function EditPatientScreen() {
         setRelativeName(p.relative_name || '');
         setRelativePhone(p.relative_phone_number || '');
         setAddress(p.address || '');
-        setLanguage(p.language || '');
+        setEmail(p.email || '');
+        if (p.id_image_url) {
+          setIdImage({ uri: `${API_BASE_URL}${p.id_image_url}` });
+        }
       } catch (err) {
         Alert.alert('Error', 'Failed to load patient info.');
         console.error(err);
@@ -66,43 +68,121 @@ export default function EditPatientScreen() {
     if (id) fetchPatient();
   }, [id]);
 
-  
+  const handleImageChange = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setIdImage(result.assets[0]);
+    }
+  };
+
+  const validateFields = () => {
+    const errors = [];
+    if (!firstName) errors.push('First name');
+    if (!lastName) errors.push('Last name');
+    if (!dob) errors.push('Date of birth');
+    if (!gender) errors.push('Gender');
+    if (!contactNumber) errors.push('Contact number');
+
+    if (errors.length > 0) {
+      Alert.alert('Missing Fields', `Please fill in: ${errors.join(', ')}`);
+      return false;
+    }
+    return true;
+  };
+
+  // const handleUpdate = async () => {
+  //   if (!validateFields()) return;
+  //   try {
+  //     const token = await SecureStore.getItemAsync('userToken');
+  //     const response = await fetch(`${API_BASE_URL}/patients/${id}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify({
+  //         first_name: firstName,
+  //         last_name: lastName,
+  //         dob,
+  //         gender,
+  //         contact_number: contactNumber,
+  //         relative_name: relativeName,
+  //         relative_phone_number: relativePhone,
+  //         address,
+  //         email,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       Alert.alert('Success', 'Patient updated successfully');
+  //       router.back();
+  //     } else {
+  //       Alert.alert('Error', data.message || 'Failed to update patient.');
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     Alert.alert('Error', 'An error occurred while updating.');
+  //   }
+  // };
 
   const handleUpdate = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+  
+    if (!firstName || !lastName || !dob || !gender || !contactNumber) {
+      Alert.alert('Missing Required Fields', 'Please fill in all required fields.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('first_name', firstName);
+    formData.append('last_name', lastName);
+    formData.append('dob', dob);
+    formData.append('gender', gender);
+    formData.append('contact_number', contactNumber);
+    formData.append('relative_name', relativeName);
+    formData.append('relative_phone_number', relativePhone);
+    formData.append('address', address);
+    formData.append('email', email);
+  
+    if (idImage && idImage.uri && idImage.uri.startsWith('file://')) {
+      formData.append('id_image', {
+        uri: idImage.uri,
+        name: 'id_image.jpg',
+        type: 'image/jpeg',
+      } as any);
+    }
+  
     try {
-      const token = await SecureStore.getItemAsync('userToken');
       const response = await fetch(`${API_BASE_URL}/patients/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
+          // NOTE: Don't manually set 'Content-Type' — it gets set automatically with FormData
         },
-        body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          dob,
-          gender,
-          contact_number: contactNumber,
-          relative_name: relativeName,
-          relative_phone_number: relativePhone,
-          address,
-          language,
-        }),
+        body: formData,
       });
-
+  
       const data = await response.json();
+  
       if (response.ok) {
         Alert.alert('Success', 'Patient updated successfully');
-        router.back();
+        router.replace('/patients');
       } else {
         Alert.alert('Error', data.message || 'Failed to update patient.');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Update error:', err);
       Alert.alert('Error', 'An error occurred while updating.');
     }
   };
 
+  
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -117,17 +197,16 @@ export default function EditPatientScreen() {
 
       <AppTextInput placeholder="First Name" value={firstName} onChangeText={setFirstName} />
       <AppTextInput placeholder="Last Name" value={lastName} onChangeText={setLastName} />
+
       <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-  <Text style={styles.buttonText}>
-    {dob ? `Date of Birth: ${dob}` : 'Select Date of Birth'}
-  </Text>
-</TouchableOpacity>
+        <Text style={styles.buttonText}>
+          {dob ? `Date of Birth: ${dob}` : 'Select Date of Birth'}
+        </Text>
+      </TouchableOpacity>
 
-
-      {/* <DateTimePickerModal
+      <DateTimePickerModal
         isVisible={showDatePicker}
         mode="date"
-        themeVariant="light"
         onConfirm={(date) => {
           setShowDatePicker(false);
           const formatted = date.toISOString().split('T')[0];
@@ -135,20 +214,9 @@ export default function EditPatientScreen() {
         }}
         onCancel={() => setShowDatePicker(false)}
         maximumDate={new Date()}
-      /> */}
-<DateTimePickerModal
-  isVisible={showDatePicker}
-  mode="date"
-  onConfirm={(date) => {
-    setShowDatePicker(false);
-    const formatted = date.toISOString().split('T')[0];
-    setDob(formatted);
-  }}
-  onCancel={() => setShowDatePicker(false)}
-  maximumDate={new Date()}
-  themeVariant= "dark"
-  display="spinner" // forces iOS-like look
-/>
+        themeVariant="dark"
+        display="spinner"
+      />
 
       <View style={styles.pickerContainer}>
         <Picker
@@ -169,7 +237,35 @@ export default function EditPatientScreen() {
       <AppTextInput placeholder="Relative Name" value={relativeName} onChangeText={setRelativeName} />
       <AppTextInput placeholder="Relative Phone" value={relativePhone} onChangeText={setRelativePhone} />
       <AppTextInput placeholder="Address" value={address} onChangeText={setAddress} />
-      <AppTextInput placeholder="Language" value={language} onChangeText={setLanguage} />
+      <AppTextInput placeholder="Email (Optional)" value={email} onChangeText={setEmail} />
+
+      {idImage && (
+        <View style={{ alignItems: 'center', marginVertical: 10 }}>
+          <Text style={{ color: '#ccc', marginBottom: 6 }}>Uploaded ID Image:</Text>
+          <Image
+            source={{ uri: idImage.uri }}
+            style={{ width: '100%', height: 200, borderRadius: 10, marginBottom: 12 }}
+            resizeMode="cover"
+          />
+<TouchableOpacity
+  style={[styles.saveButton, { backgroundColor: '#444', marginBottom: 10 }]}
+  onPress={async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setIdImage(result.assets[0]);
+    }
+  }}
+>
+  <Text style={styles.saveButtonText}>Change ID Image</Text>
+</TouchableOpacity>
+
+        </View>
+      )}
 
       <TouchableOpacity style={styles.saveButton} onPress={handleUpdate}>
         <Text style={styles.saveButtonText}>Save Changes</Text>
@@ -185,7 +281,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   heading: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#fe7c3f',
     marginBottom: 20,
@@ -196,12 +292,23 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 30,
   },
   saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  changeImageButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: '#444',
+  },
+  changeImageText: {
+    color: '#fff',
+    fontSize: 14,
   },
   loadingContainer: {
     flex: 1,
