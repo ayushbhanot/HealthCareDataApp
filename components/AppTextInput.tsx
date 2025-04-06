@@ -1,6 +1,8 @@
 import React from 'react';
 import { TextInput, StyleSheet, TextInputProps } from 'react-native';
 
+
+
 const AppTextInput = (props: TextInputProps) => {
   return (
     <TextInput

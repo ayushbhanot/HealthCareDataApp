@@ -561,90 +561,188 @@ export default function EditPatientScreen() {
       </View>
     );
   }
-
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ backgroundColor: '#1b0d2e' }}>
+    <View style={{ flex: 1, backgroundColor: '#1b0d2e' }}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
-      </View>
-      <Text style={styles.heading}>Edit Patient Info</Text>
-
-      <AppTextInput placeholder="First Name" value={firstName} onChangeText={setFirstName} />
-      <AppTextInput placeholder="Last Name" value={lastName} onChangeText={setLastName} />
-
-      <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-        <Text style={styles.buttonText}>
-          {dob ? `Date of Birth: ${dob}` : 'Select Date of Birth'}
-        </Text>
-      </TouchableOpacity>
-
-      <DateTimePickerModal
-        isVisible={showDatePicker}
-        mode="date"
-        onConfirm={(date) => {
-          setShowDatePicker(false);
-          const formatted = date.toISOString().split('T')[0];
-          setDob(formatted);
-        }}
-        onCancel={() => setShowDatePicker(false)}
-        maximumDate={new Date()}
-        themeVariant="dark"
-        display="spinner"
-      />
-
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={gender}
-          onValueChange={(value) => setGender(value)}
-          style={styles.picker}
-          itemStyle={styles.pickerItem}
-        >
-          <Picker.Item label="Select Gender" value="" color="#999" />
-          <Picker.Item label="Male" value="Male" />
-          <Picker.Item label="Female" value="Female" />
-          <Picker.Item label="Other" value="Other" />
-        </Picker>
-        <Ionicons name="chevron-down" size={20} color="#666" style={styles.pickerIcon} />
-      </View>
-
-      <AppTextInput placeholder="Contact Number" value={contactNumber} onChangeText={setContactNumber} />
-      <AppTextInput placeholder="Relative Name" value={relativeName} onChangeText={setRelativeName} />
-      <AppTextInput placeholder="Relative Phone" value={relativePhone} onChangeText={setRelativePhone} />
-      <AppTextInput placeholder="Address" value={address} onChangeText={setAddress} />
-      <AppTextInput placeholder="Email (Optional)" value={email} onChangeText={setEmail} />
-
-      {idImage && (
-        <View style={{ alignItems: 'center', marginVertical: 10 }}>
-          <Text style={{ color: '#ccc', marginBottom: 6 }}>Uploaded ID:</Text>
-          <Image
-            source={{ uri: idImage.uri }}
-            style={{ width: '100%', height: 200, borderRadius: 10, marginBottom: 12 }}
-            resizeMode="cover"
-          />
-<TouchableOpacity
-  style={[styles.changeImageButton, { backgroundColor: '#444', marginBottom: 10 }]}
-  onPress={handleImageChange}
->
-  <Text style={styles.saveButtonText}>Change ID</Text>
-</TouchableOpacity>
-
+        <TouchableOpacity onPress={() => router.replace(`/patients`)} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
         </View>
-      )}
+      <ScrollView
+        contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+      >
+  
+        <Text style={styles.heading}>Edit Patient Info</Text>
+  
+        <AppTextInput placeholder="First Name" value={firstName} onChangeText={setFirstName} />
+        <AppTextInput placeholder="Last Name" value={lastName} onChangeText={setLastName} />
+  
+        <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+          <Text style={styles.buttonText}>
+            {dob ? `Date of Birth: ${dob}` : 'Select Date of Birth'}
+          </Text>
+        </TouchableOpacity>
+  
+        <DateTimePickerModal
+          isVisible={showDatePicker}
+          mode="date"
+          onConfirm={(date) => {
+            setShowDatePicker(false);
+            const formatted = date.toISOString().split('T')[0];
+            setDob(formatted);
+          }}
+          onCancel={() => setShowDatePicker(false)}
+          maximumDate={new Date()}
+          themeVariant="dark"
+          display="spinner"
+        />
+  
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={gender}
+            onValueChange={setGender}
+            style={styles.picker}
+            itemStyle={styles.pickerItem}
+          >
+            <Picker.Item label="Select Gender" value="" color="#999" />
+            <Picker.Item label="Male" value="Male" />
+            <Picker.Item label="Female" value="Female" />
+            <Picker.Item label="Other" value="Other" />
+          </Picker>
+          <Ionicons name="chevron-down" size={20} color="#666" style={styles.pickerIcon} />
+        </View>
+  
+        <AppTextInput placeholder="Contact Number" value={contactNumber} onChangeText={setContactNumber} />
+        <AppTextInput placeholder="Relative Name" value={relativeName} onChangeText={setRelativeName} />
+        <AppTextInput placeholder="Relative Phone" value={relativePhone} onChangeText={setRelativePhone} />
+        <AppTextInput placeholder="Address" value={address} onChangeText={setAddress} />
+        <AppTextInput placeholder="Email (Optional)" value={email} onChangeText={setEmail} />
+  
+        { idImage ? (
+  <View style={{ alignItems: 'center', marginVertical: 20 }}>
+    <Text style={{ color: '#ccc', marginBottom: 8 }}>Uploaded ID:</Text>
+    <Image
+      source={{ uri: idImage.uri }}
+      style={{ width: '100%', height: 200, borderRadius: 12 }}
+      resizeMode="cover"
+    />
+    <TouchableOpacity
+      style={styles.changeImageButton}
+      onPress={handleImageChange}
+    >
+      <Text style={styles.saveButtonText}>Change ID</Text>
+    </TouchableOpacity>
+  </View>
+) : (
+  <View style={{ alignItems: 'center', marginVertical: 20 }}>
+    <TouchableOpacity
+      style={styles.changeImageButton}
+      onPress={handleImageChange}
+    >
+      <Text style={styles.saveButtonText}>Add ID</Text>
+    </TouchableOpacity>
+  </View>
+)}
 
-      <View style={styles.buttonRow}>
+      </ScrollView>
+  
+      {/* Fixed bottom buttons */}
+      <View style={styles.footer}>
         <TouchableOpacity style={[styles.halfButton, styles.deleteButton]} onPress={handleDelete}>
           <Text style={styles.deleteButtonText}>Delete</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={[styles.halfButton, styles.saveButton]} onPress={handleUpdate}>
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
+  
+//   return (
+//     <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ backgroundColor: '#1b0d2e' }}>
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+//           <Ionicons name="chevron-back" size={24} color="#fff" />
+//         </TouchableOpacity>
+//         <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+//       </View>
+//       <Text style={styles.heading}>Edit Patient Info</Text>
+
+//       <AppTextInput placeholder="First Name" value={firstName} onChangeText={setFirstName} />
+//       <AppTextInput placeholder="Last Name" value={lastName} onChangeText={setLastName} />
+
+//       <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+//         <Text style={styles.buttonText}>
+//           {dob ? `Date of Birth: ${dob}` : 'Select Date of Birth'}
+//         </Text>
+//       </TouchableOpacity>
+
+//       <DateTimePickerModal
+//         isVisible={showDatePicker}
+//         mode="date"
+//         onConfirm={(date) => {
+//           setShowDatePicker(false);
+//           const formatted = date.toISOString().split('T')[0];
+//           setDob(formatted);
+//         }}
+//         onCancel={() => setShowDatePicker(false)}
+//         maximumDate={new Date()}
+//         themeVariant="dark"
+//         display="spinner"
+//       />
+
+//       <View style={styles.pickerContainer}>
+//         <Picker
+//           selectedValue={gender}
+//           onValueChange={(value) => setGender(value)}
+//           style={styles.picker}
+//           itemStyle={styles.pickerItem}
+//         >
+//           <Picker.Item label="Select Gender" value="" color="#999" />
+//           <Picker.Item label="Male" value="Male" />
+//           <Picker.Item label="Female" value="Female" />
+//           <Picker.Item label="Other" value="Other" />
+//         </Picker>
+//         <Ionicons name="chevron-down" size={20} color="#666" style={styles.pickerIcon} />
+//       </View>
+
+//       <AppTextInput placeholder="Contact Number" value={contactNumber} onChangeText={setContactNumber} />
+//       <AppTextInput placeholder="Relative Name" value={relativeName} onChangeText={setRelativeName} />
+//       <AppTextInput placeholder="Relative Phone" value={relativePhone} onChangeText={setRelativePhone} />
+//       <AppTextInput placeholder="Address" value={address} onChangeText={setAddress} />
+//       <AppTextInput placeholder="Email (Optional)" value={email} onChangeText={setEmail} />
+
+//       {idImage && (
+//         <View style={{ alignItems: 'center', marginVertical: 10 }}>
+//           <Text style={{ color: '#ccc', marginBottom: 6 }}>Uploaded ID:</Text>
+//           <Image
+//             source={{ uri: idImage.uri }}
+//             style={{ width: '100%', height: 200, borderRadius: 10, marginBottom: 12 }}
+//             resizeMode="cover"
+//           />
+// <TouchableOpacity
+//   style={[styles.changeImageButton, { backgroundColor: '#444', marginBottom: 10 }]}
+//   onPress={handleImageChange}
+// >
+//   <Text style={styles.saveButtonText}>Change ID</Text>
+// </TouchableOpacity>
+
+//         </View>
+//       )}
+
+//       <View style={styles.buttonRow}>
+//         <TouchableOpacity style={[styles.halfButton, styles.deleteButton]} onPress={handleDelete}>
+//           <Text style={styles.deleteButtonText}>Delete</Text>
+//         </TouchableOpacity>
+
+//         <TouchableOpacity style={[styles.halfButton, styles.saveButton]} onPress={handleUpdate}>
+//           <Text style={styles.saveButtonText}>Save Changes</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </ScrollView>
+//   );
 }
 
 const styles = StyleSheet.create({
@@ -762,4 +860,18 @@ const styles = StyleSheet.create({
     width: 120,
     resizeMode: 'contain',
   },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#1b0d2e',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    gap: 12,
+  },
+  
 });
+
