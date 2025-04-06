@@ -519,7 +519,7 @@ const handleStartForm = () => {
   }}
   onCancel={() => setShowDatePicker(false)}
   maximumDate={new Date()}
-  themeVariant="light"
+  themeVariant="dark"
   display={Platform.OS === 'ios' ? 'spinner' : 'default'} // 👈 this is key!
 />
 

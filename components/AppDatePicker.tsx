@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, Text, StyleSheet } from 'react-native';
+import { View, Pressable } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import AppTextInput from './AppTextInput';
 
@@ -28,8 +28,9 @@ const AppDatePicker = ({ dob, setDob }: { dob: string, setDob: (val: string) => 
         mode="date"
         onConfirm={handleConfirm}
         onCancel={() => setPickerVisible(false)}
-        themeVariant="dark" // 👈 matches your dark mode
-        maximumDate={new Date()} // can't pick future dates for DOB
+        themeVariant="light"
+        display="spinner"
+        maximumDate={new Date()}
       />
     </View>
   );

@@ -10,6 +10,7 @@ export default function PatientDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [patient, setPatient] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -107,9 +108,10 @@ export default function PatientDetailScreen() {
               <Text style={styles.value}>{patient.address}</Text>
             </View>
           )}
-        </LinearGradient>\
+        </LinearGradient>
         <TouchableOpacity
-  style={styles.editButton}
+  style={styles.editButton} onPress={() => router.push(`/patients/edit?id=${id}`)}
+
  //onPress={() => router.push(`/edit/${id}`)} // or whatever route you choose
 >
   <Text style={styles.editButtonText}>Edit Patient Info</Text>

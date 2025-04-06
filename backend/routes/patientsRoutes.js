@@ -126,25 +126,71 @@ router.get("/:id", authenticateUser, async (req, res) => {
 /**
  * Update Patient (PUT /patients/:id)
  */
-router.put("/:id", authenticateUser, async (req, res) => {
-  try {
-    const { first_name, last_name, dob, gender, contact_number, language, next_followup } = req.body;
 
-    // Find patient
+router.put("/:id", authenticateUser, upload.single("id_image"), async (req, res) => {
+  try {
+    const {
+      first_name,
+      last_name,
+      dob,
+      gender,
+      contact_number,
+      language,
+      next_followup,
+      relative_name,
+      relative_phone_number,
+      address,
+      longitude,
+      latitude,
+    } = req.body;
+
+    const id_image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
     const patient = await pool.query("SELECT * FROM patients WHERE id = $1", [req.params.id]);
+
     if (patient.rows.length === 0) {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    // Only the doctor who registered the patient or admin can update
+    // Only admin or original creator can edit
     if (req.user.role !== "admin" && patient.rows[0].created_by !== req.user.userId) {
       return res.status(403).json({ message: "Access denied." });
     }
 
     const updatedPatient = await pool.query(
-      `UPDATE patients SET first_name = $1, last_name = $2, dob = $3, gender = $4, 
-       contact_number = $5, language = $6, next_followup = $7, updated_at = NOW() WHERE id = $8 RETURNING *`,
-      [first_name, last_name, dob, gender, contact_number, language, next_followup, req.params.id]
+      `UPDATE patients SET 
+        first_name = $1,
+        last_name = $2,
+        dob = $3,
+        gender = $4,
+        contact_number = $5,
+        language = $6,
+        next_followup = $7,
+        relative_name = $8,
+        relative_phone_number = $9,
+        address = $10,
+        longitude = $11,
+        latitude = $12,
+        id_image_url = COALESCE($13, id_image_url),
+        updated_at = NOW()
+      WHERE id = $14
+      RETURNING *`,
+      [
+        first_name,
+        last_name,
+        dob,
+        gender,
+        contact_number,
+        language,
+        next_followup,
+        relative_name || null,
+        relative_phone_number || null,
+        address || null,
+        longitude || null,
+        latitude || null,
+        id_image_url,
+        req.params.id
+      ]
     );
 
     res.json({ message: "Patient updated successfully", patient: updatedPatient.rows[0] });
@@ -153,6 +199,35 @@ router.put("/:id", authenticateUser, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+// router.put("/:id", authenticateUser, async (req, res) => {
+//   try {
+//     const { first_name, last_name, dob, gender, contact_number, language, next_followup } = req.body;
+
+//     // Find patient
+//     const patient = await pool.query("SELECT * FROM patients WHERE id = $1", [req.params.id]);
+//     if (patient.rows.length === 0) {
+//       return res.status(404).json({ message: "Patient not found" });
+//     }
+
+//     // Only the doctor who registered the patient or admin can update
+//     if (req.user.role !== "admin" && patient.rows[0].created_by !== req.user.userId) {
+//       return res.status(403).json({ message: "Access denied." });
+//     }
+
+//     const updatedPatient = await pool.query(
+//       `UPDATE patients SET first_name = $1, last_name = $2, dob = $3, gender = $4, 
+//        contact_number = $5, language = $6, next_followup = $7, updated_at = NOW() WHERE id = $8 RETURNING *`,
+//       [first_name, last_name, dob, gender, contact_number, language, next_followup, req.params.id]
+//     );
+
+//     res.json({ message: "Patient updated successfully", patient: updatedPatient.rows[0] });
+//   } catch (error) {
+//     console.error("❌ Error updating patient:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 /**
  * Soft Delete Patient (DELETE /patients/:id)
