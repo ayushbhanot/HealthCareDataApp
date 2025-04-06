@@ -43,36 +43,37 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack>
-        {/* The login screen with no header */}
-        <Stack.Screen 
-          name="LoginScreen" 
-          options={{ headerShown: false }} 
+<Stack>
+  <Stack.Screen 
+    name="LoginScreen" 
+    options={{ headerShown: false }} 
+  />
+  <Stack.Screen 
+    name="(tabs)" 
+    options={{
+      headerShown: true,
+      headerStyle: { backgroundColor: '#241b35' },
+      headerTitle: () => (
+        <Image
+          source={require('../assets/images/icon.png')}
+          style={{ width: 120, height: 40, resizeMode: 'contain' }}
         />
-        {/* The authenticated tabs flow with a custom header */}
-        <Stack.Screen 
-          name="(tabs)" 
-          options={{
-            headerShown: true,
-            headerStyle: { backgroundColor: '#241b35' },
-            headerTitle: () => (
-              <Image
-                source={require('../assets/images/icon.png')}
-                style={{ width: 120, height: 40, resizeMode: 'contain' }}
-              />
-            ),
-            headerTitleAlign: 'center',
-          }}
-        />
-<Stack.Screen
-  name="patients/[id]"
-  options={{ headerShown: false }} // 🔥 hide the default
-/>
+      ),
+      headerTitleAlign: 'center',
+    }}
+  />
+  <Stack.Screen
+    name="patients/[id]"
+    options={{ headerShown: false }}
+  />
+  <Stack.Screen
+    name="patients/edit"
+    options={{ headerShown: false }} // 👈 this is the one you needed
+  />
+</Stack>
 
-
-
-      </Stack>
       <StatusBar />
+      
     </>
   );
 }

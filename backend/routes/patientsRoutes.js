@@ -84,13 +84,20 @@ router.post("/", authenticateUser, upload.single("id_image"), async (req, res) =
  * - Admins can see all patients
  * - Doctors can see only their assigned patients
  */
+
 router.get("/", authenticateUser, async (req, res) => {
   try {
     let patients;
+
     if (req.user.role === "admin") {
-      patients = await pool.query("SELECT * FROM patients");
+      patients = await pool.query(
+        "SELECT * FROM patients WHERE deleted_at IS NULL"
+      );
     } else {
-      patients = await pool.query("SELECT * FROM patients WHERE created_by = $1", [req.user.userId]);
+      patients = await pool.query(
+        "SELECT * FROM patients WHERE created_by = $1 AND deleted_at IS NULL",
+        [req.user.userId]
+      );
     }
 
     res.json({ patients: patients.rows });
@@ -99,6 +106,8 @@ router.get("/", authenticateUser, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
 
 /**
  * Get Single Patient (GET /patients/:id)
@@ -238,11 +247,6 @@ router.delete("/:id", authenticateUser, async (req, res) => {
 
     if (patient.rows.length === 0) {
       return res.status(404).json({ message: "Patient not found" });
-    }
-
-    // Only admin can delete patients
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Access denied. Only admins can delete patients." });
     }
 
     await pool.query("UPDATE patients SET deleted_at = NOW() WHERE id = $1", [req.params.id]);

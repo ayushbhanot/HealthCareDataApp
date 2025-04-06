@@ -15,7 +15,7 @@ import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { useNavigation } from '@react-navigation/native'
 
 // Define the Patient type with an optional id_image_url field
 type Patient = {
@@ -42,7 +42,7 @@ const PatientCard = ({ patient }: { patient: Patient }) => {
   
   return (
     <TouchableOpacity style={styles.card}
-    onPress={() => router.push(`/patients/${patient.id}`)}>
+    onPress={() => router.replace(`/patients/${patient.id}`)}>
   <Image
     source={patient.id_image_url ? { uri: `${API_BASE_URL}${patient.id_image_url}` } : defaultImage}
     style={styles.avatar}
@@ -307,3 +307,7 @@ const styles = StyleSheet.create({
   
   
 });
+
+export const options = {
+  headerLeft: () => null, // Hides the back button
+};

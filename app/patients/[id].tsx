@@ -110,7 +110,7 @@ export default function PatientDetailScreen() {
           )}
         </LinearGradient>
         <TouchableOpacity
-  style={styles.editButton} onPress={() => router.push(`/patients/edit?id=${id}`)}
+  style={styles.editButton} onPress={() => router.replace(`/patients/edit?id=${id}`)}
 
  //onPress={() => router.push(`/edit/${id}`)} // or whatever route you choose
 >

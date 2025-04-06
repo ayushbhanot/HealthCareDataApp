@@ -85,10 +85,10 @@ export default function TabLayout() {
 
       if (translationX < -threshold && currentIndex < tabRoutes.length - 1) {
         const newTab = tabRoutes[currentIndex + 1];
-        router.push(`/(tabs)/${newTab}` as any);
+        router.replace(`/(tabs)/${newTab}` as any);
       } else if (translationX > threshold && currentIndex > 0) {
         const newTab = tabRoutes[currentIndex - 1];
-        router.push(newTab === 'index' ? '/(tabs)/index' : `/(tabs)/${newTab}` as any);
+        router.replace(newTab === 'index' ? '/(tabs)/index' : `/(tabs)/${newTab}` as any);
       }
     }
   };
@@ -130,7 +130,7 @@ export default function TabLayout() {
             }}
           >
             <Tabs.Screen name="index" options={{ title: 'Dashboard' }} />
-            <Tabs.Screen name="patients" options={{ title: 'Patients' }} />
+            <Tabs.Screen name="patients" options={{ title: 'Patients'}} />
             <Tabs.Screen name="register" options={{ title: 'Register' }} />
             <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
           </Tabs>
