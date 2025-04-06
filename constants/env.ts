@@ -1,3 +1,3 @@
-export const API_BASE_URL = "http:/172.30.106.151:5003"; //"http://192.168.40.28:5003";"http://172.20.10.8:5003" // Replace with correct IP address
+export const API_BASE_URL = "http:/172.30.90.62:5003"; //"http://192.168.40.28:5003";"http://172.20.10.8:5003" // Replace with correct IP address
 
 // ipconfig getifaddr en0
