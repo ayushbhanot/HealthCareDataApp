@@ -595,7 +595,7 @@ export default function EditPatientScreen() {
           }}
           onCancel={() => setShowDatePicker(false)}
           maximumDate={new Date()}
-          themeVariant="dark"
+          themeVariant="light"
           display="spinner"
         />
   
