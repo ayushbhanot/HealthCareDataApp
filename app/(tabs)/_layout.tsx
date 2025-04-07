@@ -290,7 +290,7 @@ export default function TabLayout() {
                     const isFocused = state.index === state.routes.indexOf(route);
                     const iconName =
                       route.name === 'index'
-                        ? 'home'
+                        ? 'stats-chart'
                         : route.name === 'patients'
                         ? 'people'
                         : route.name === 'register'
@@ -311,7 +311,7 @@ export default function TabLayout() {
             )}
             screenOptions={{ headerShown: false }}
           >
-            <Tabs.Screen name="index" options={{ title: 'Dashboard' }} />
+            <Tabs.Screen name="index" options={{ title: 'Analytics' }} />
             <Tabs.Screen name="patients" options={{ title: 'Patients' }} />
             <Tabs.Screen name="register" options={{ title: 'Register' }} />
             {isAdmin && (
