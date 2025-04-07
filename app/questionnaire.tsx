@@ -7,10 +7,13 @@ import {
   StyleSheet,
   Alert,
   TextInput,
+TouchableOpacity, Image 
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
+import { Ionicons } from '@expo/vector-icons';
+
 
 export default function QuestionnaireScreen() {
   const router = useRouter();
@@ -116,6 +119,13 @@ export default function QuestionnaireScreen() {
   );
 
   return (
+    <View style={{ flex: 1, backgroundColor: '#1b0d2e' }}>
+      <View style={styles.viewheader}>
+        <TouchableOpacity onPress={() => router.replace(`/patients`)} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Image source={require('../assets/images/icon.png')} style={styles.logo} />
+        </View>
     <ScrollView style={styles.container}>
       <Text style={styles.header}>Medical History</Text>
       <TextInput placeholder="Medications" style={styles.input} value={medications} onChangeText={setMedications} />
@@ -135,9 +145,12 @@ export default function QuestionnaireScreen() {
         {!historyId && <Button title="Submit Medical History" onPress={() => handleSubmit('submit')} />}
         {historyId && <Button title="Update Medical History" onPress={() => handleSubmit('update')} />}
       </View>
+      
     </ScrollView>
+    </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { padding: 20 },
@@ -168,4 +181,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  viewheader: {
+    height: 90,
+    paddingTop: 50,
+    backgroundColor: '#241b35',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    position: 'relative',
+    marginBottom: 10,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    top: 50,
+    zIndex: 10,
+  },
+  logo: {
+    height: 36,
+    width: 120,
+    resizeMode: 'contain',
+  },
+  
 });

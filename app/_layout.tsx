@@ -70,6 +70,7 @@ export default function RootLayout() {
     name="(tabs)" 
     options={{
       headerShown: true,
+      headerBackVisible: false,
       headerStyle: { backgroundColor: '#241b35' },
       headerTitle: () => (
         <Image
@@ -86,6 +87,10 @@ export default function RootLayout() {
   />
   <Stack.Screen
     name="patients/edit"
+    options={{ headerShown: false }} // 👈 this is the one you needed
+  />
+    <Stack.Screen
+    name="questionnaire"
     options={{ headerShown: false }} // 👈 this is the one you needed
   />
 </Stack>

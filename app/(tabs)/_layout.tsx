@@ -320,6 +320,7 @@ if (currentIndex === -1) return;
             {isAdmin && (
               <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
             )}
+
           </Tabs>
         </View>
       </PanGestureHandler>
