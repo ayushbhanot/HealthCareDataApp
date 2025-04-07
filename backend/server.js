@@ -4,6 +4,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
 const patientRoutes = require("./routes/patientsRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.json()); // Parse JSON requests
 
 app.use("/protected", protectedRoutes);
 app.use("/patients", patientRoutes);
+app.use("/analytics",analyticsRoutes);
 
 // Routes
 app.use("/users", authRoutes); // User Authentication Routes
