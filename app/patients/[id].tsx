@@ -224,6 +224,10 @@ import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '@/constants/env';
 import * as SecureStore from 'expo-secure-store';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
+import React from 'react';
+
+
 
 export default function PatientDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -231,6 +235,35 @@ export default function PatientDetailScreen() {
   const [patient, setPatient] = useState<any>(null);
   const [medicalHistory, setMedicalHistory] = useState<any[] | null>(null);
   const [symptoms, setSymptoms] = useState<string[] | null>(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchDetails = async () => {
+        try {
+          const token = await SecureStore.getItemAsync('userToken');
+  
+          const [patientRes, historyRes, symptomRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/patients/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/patients/medicalHistory/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/patients/symptoms/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
+          ]);
+  
+          const patientData = await patientRes.json();
+          const historyData = await historyRes.json();
+          const symptomData = await symptomRes.json();
+  
+          setPatient(patientData.patient);
+          setMedicalHistory(historyData.medical_history || []);
+          setSymptoms(symptomData.symptoms?.map((s: any) => s.symptom_name) || []);
+        } catch (err) {
+          console.error('Error fetching data:', err);
+        }
+      };
+  
+      fetchDetails();
+    }, [id])
+  );
+  
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -292,7 +325,7 @@ export default function PatientDetailScreen() {
   <Text style={styles.editButtonText}>Edit Patient Info</Text>
 </TouchableOpacity>
 
-        {medicalHistory && medicalHistory.length > 0 && (
+        {/* {medicalHistory && medicalHistory.length > 0 && (
           <View style={styles.historyCard}>
             <Text style={styles.historyTitle}>Medical History:</Text>
             {medicalHistory.map((entry, index) => (
@@ -310,11 +343,33 @@ export default function PatientDetailScreen() {
                 <Text style={styles.historyItem}>• Eye Glasses/Lenses: {entry.eye_glasses_or_lenses ? 'Yes' : 'No'}</Text>
               </View>
             ))}
-          </View>
-        )}
+          </View> */}
+          {medicalHistory && medicalHistory.length > 0 && (
+            <LinearGradient colors={['#240046', '#5a189a', '#9d4edd']} style={styles.sectionCard}>
+  <Text style={styles.sectionTitle}>Medical History</Text>
+  <View style={styles.sectionDivider} />
+  {medicalHistory.map((entry, index) => (
+    <View key={index} style={{ marginBottom: 10 }}>
+      <Text style={styles.sectionItem}>• Medications: {entry.medications || 'None'}</Text>
+      <Text style={styles.sectionItem}>• Allergies: {entry.allergies || 'None'}</Text>
+      <Text style={styles.sectionItem}>• Eye Injuries: {entry.eye_injuries || 'None'}</Text>
+      <Text style={styles.sectionItem}>• Eye Surgeries: {entry.eye_surgeries || 'None'}</Text>
+      <Text style={styles.sectionItem}>• Social History: {entry.social_history || 'None'}</Text>
+      <Text style={styles.sectionItem}>• Family History: {entry.family_history || 'None'}</Text>
+      <Text style={styles.sectionItem}>• Diabetes: {entry.diabetes ? 'Yes' : 'No'}</Text>
+      <Text style={styles.sectionItem}>• Hypertension: {entry.hypertension ? 'Yes' : 'No'}</Text>
+      <Text style={styles.sectionItem}>• Nearsightedness: {entry.nearsightedness ? 'Yes' : 'No'}</Text>
+      <Text style={styles.sectionItem}>• Farsightedness: {entry.farsightedness ? 'Yes' : 'No'}</Text>
+      <Text style={styles.sectionItem}>• Eye Glasses/Lenses: {entry.eye_glasses_or_lenses ? 'Yes' : 'No'}</Text>
+    </View>
+  ))}
+</LinearGradient>
+
+)}
+
 
         <TouchableOpacity
-          style={[styles.editButton, { backgroundColor: '#9d4edd' }]}
+          style={[styles.editButton]}
           onPress={() => {
             const hasHistory = medicalHistory && medicalHistory.length > 0;
             const historyId = hasHistory ? medicalHistory[0].history_id : '';
@@ -327,7 +382,7 @@ export default function PatientDetailScreen() {
           </Text>
         </TouchableOpacity>
 
-        <View style={styles.historyCard}>
+        {/* <View style={styles.historyCard}>
           <Text style={styles.historyTitle}>Patient Current Symptoms:</Text>
           {symptoms && symptoms.length > 0 ? (
             symptoms.map((symptom, idx) => (
@@ -336,7 +391,21 @@ export default function PatientDetailScreen() {
           ) : (
             <Text style={styles.historyItem}>None</Text>
           )}
-        </View>
+        </View> */}
+      
+        <LinearGradient colors={['#240046', '#5a189a', '#9d4edd']} style={styles.sectionCard}>
+  <Text style={styles.sectionTitle}>Current Symptoms</Text>
+  <View style={styles.sectionDivider} />
+  {symptoms && symptoms.length > 0 ? (
+    symptoms.map((symptom, idx) => (
+      <Text key={idx} style={styles.sectionItem}>• {symptom}</Text>
+    ))
+  ) : (
+    <Text style={styles.sectionItem}>None</Text>
+  )}
+</LinearGradient>
+
+
 
         <TouchableOpacity
           style={[styles.editButton, { backgroundColor: '#22c55e' }]}
@@ -403,4 +472,38 @@ const styles = StyleSheet.create({
   },
   historyTitle: { fontSize: 18, fontWeight: 'bold', color: '#fe7c3f', marginBottom: 8 },
   historyItem: { fontSize: 15, color: '#eee', marginBottom: 4 },
+  sectionCard: {
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 20,
+    backgroundColor: '#2f1d48',
+    borderColor: '#a81ee6',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fe7c3f',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#ffffff33',
+    marginBottom: 14,
+  },
+  
+  sectionItem: {
+    fontSize: 15,
+    color: '#eee',
+    marginBottom: 8,
+  },  
+  
 });

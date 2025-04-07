@@ -13,6 +13,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import AppTextInput from '@/components/AppTextInput'; 
 
 
 export default function QuestionnaireScreen() {
@@ -27,11 +29,11 @@ export default function QuestionnaireScreen() {
   const [social_history, setSocialHistory] = useState('');
   const [family_history, setFamilyHistory] = useState('');
 
-  const [diabetes, setDiabetes] = useState<boolean | null>(null);
-  const [hypertension, setHypertension] = useState<boolean | null>(null);
-  const [nearsightedness, setNearsightedness] = useState<boolean | null>(null);
-  const [farsightedness, setFarsightedness] = useState<boolean | null>(null);
-  const [eye_glasses_or_lenses, setEyeGlassesOrLenses] = useState<boolean | null>(null);
+  const [diabetes, setDiabetes] = useState<boolean | null>(false);
+  const [hypertension, setHypertension] = useState<boolean | null>(false);
+  const [nearsightedness, setNearsightedness] = useState<boolean | null>(false);
+  const [farsightedness, setFarsightedness] = useState<boolean | null>(false);
+  const [eye_glasses_or_lenses, setEyeGlassesOrLenses] = useState<boolean | null>(false);
 
   useEffect(() => {
     const fetchExistingHistory = async () => {
@@ -108,89 +110,102 @@ export default function QuestionnaireScreen() {
     }
   };
 
-  const renderBooleanButtons = (label: string, value: boolean | null, setValue: (v: boolean) => void) => (
+  const renderBooleanButtons = (
+    label: string,
+    value: boolean | null,
+    setValue: (v: boolean) => void
+  ) => (
     <View style={styles.booleanContainer}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.buttonRow}>
-        <Button title="Yes" onPress={() => setValue(true)} color={value === true ? '#4caf50' : undefined} />
-        <Button title="No" onPress={() => setValue(false)} color={value === false ? '#f44336' : undefined} />
+        <TouchableOpacity
+          style={[
+            styles.choiceButton,
+            value === true && { backgroundColor: '#22c55e' },
+          ]}
+          onPress={() => setValue(true)}
+        >
+          <Text style={styles.buttonText}>Yes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.choiceButton,
+            value === false && { backgroundColor: '#ef4444' },
+          ]}
+          onPress={() => setValue(false)}
+        >
+          <Text style={styles.buttonText}>No</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
+  
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#1b0d2e' }}>
-      <View style={styles.viewheader}>
-        <TouchableOpacity onPress={() => router.replace(`/patients`)} style={styles.backButton}>
+    <LinearGradient
+      colors={['#1b0d2e', '#2b1550', '#3e207a']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
+    >
+              <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.replace(`/patients`)} style={styles.backButton}>
             <Ionicons name="chevron-back" size={24} color="#fff" />
           </TouchableOpacity>
           <Image source={require('../assets/images/icon.png')} style={styles.logo} />
         </View>
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Medical History</Text>
-      <TextInput placeholder="Medications" style={styles.input} value={medications} onChangeText={setMedications} />
-      <TextInput placeholder="Allergies" style={styles.input} value={allergies} onChangeText={setAllergies} />
-      <TextInput placeholder="Eye Injuries" style={styles.input} value={eye_injuries} onChangeText={setEyeInjuries} />
-      <TextInput placeholder="Eye Surgeries" style={styles.input} value={eye_surgeries} onChangeText={setEyeSurgeries} />
-      <TextInput placeholder="Social History" style={styles.input} value={social_history} onChangeText={setSocialHistory} />
-      <TextInput placeholder="Family History" style={styles.input} value={family_history} onChangeText={setFamilyHistory} />
+      <ScrollView contentContainerStyle={styles.scroll}>
 
-      {renderBooleanButtons('Diabetes', diabetes, setDiabetes)}
-      {renderBooleanButtons('Hypertension', hypertension, setHypertension)}
-      {renderBooleanButtons('Nearsightedness', nearsightedness, setNearsightedness)}
-      {renderBooleanButtons('Farsightedness', farsightedness, setFarsightedness)}
-      {renderBooleanButtons('Eye Glasses or Lenses', eye_glasses_or_lenses, setEyeGlassesOrLenses)}
+  
+      <LinearGradient colors={['#240046', '#5a189a', '#9d4edd']} style={styles.card}>
+          <Text style={styles.title}>Medical History</Text>
+  
+          <AppTextInput placeholder="Medications" value={medications} onChangeText={setMedications} style={styles.darkPurpleInput}/>
+          <AppTextInput placeholder="Allergies" value={allergies} onChangeText={setAllergies} style={styles.darkPurpleInput}/>
+          <AppTextInput placeholder="Eye Injuries" value={eye_injuries} onChangeText={setEyeInjuries} style={styles.darkPurpleInput}/>
+          <AppTextInput placeholder="Eye Surgeries" value={eye_surgeries} onChangeText={setEyeSurgeries} style={styles.darkPurpleInput}/>
+          <AppTextInput placeholder="Social History" value={social_history} onChangeText={setSocialHistory} style={styles.darkPurpleInput}/>
+          <AppTextInput placeholder="Family History" value={family_history} onChangeText={setFamilyHistory} style={styles.darkPurpleInput}/>
+  
+          {/* Custom Boolean Buttons */}
+          {renderBooleanButtons('Diabetes', diabetes, setDiabetes)}
+{renderBooleanButtons('Hypertension', hypertension, setHypertension)}
+{renderBooleanButtons('Nearsightedness', nearsightedness, setNearsightedness)}
+{renderBooleanButtons('Farsightedness', farsightedness, setFarsightedness)}
+{renderBooleanButtons('Glasses or Lenses', eye_glasses_or_lenses, setEyeGlassesOrLenses)}
 
-      <View style={styles.submitContainer}>
-        {!historyId && <Button title="Submit Medical History" onPress={() => handleSubmit('submit')} />}
-        {historyId && <Button title="Update Medical History" onPress={() => handleSubmit('update')} />}
-      </View>
-      
-    </ScrollView>
-    </View>
+  
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={() => handleSubmit(historyId ? 'update' : 'submit')}
+          >
+            <Text style={styles.submitButtonText}>
+              {historyId ? 'Update Medical History' : 'Submit Medical History'}
+            </Text>
+          </TouchableOpacity>
+        </LinearGradient>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  header: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#fff' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    color: '#000',
-  },
-  submitContainer: {
-    marginTop: 20,
+  scroll: {
+    paddingVertical: 40,
+    paddingHorizontal: 20,
     alignItems: 'center',
   },
-  booleanContainer: {
-    marginTop: 10,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 6,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  viewheader: {
-    height: 90,
-    paddingTop: 50,
-    backgroundColor: '#241b35',
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    height: 90,
     width: '100%',
+    paddingTop: 50,
+    backgroundColor: '#241b35',
+    marginBottom: 0,
     position: 'relative',
-    marginBottom: 10,
   },
   backButton: {
     position: 'absolute',
@@ -203,5 +218,82 @@ const styles = StyleSheet.create({
     width: 120,
     resizeMode: 'contain',
   },
+  card: {
+    backgroundColor: '#2f2542',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#3a2f54',
+  },
+  title: {
+    backgroundColor: '#fe7c3f',
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignSelf: 'center',
+    marginBottom: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },  
+  submitButton: {
+    backgroundColor: '#fe7c3f',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginTop: 30,
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  booleanContainer: {
+    marginTop: 16,
+  },
+  label: {
+    color: '#f3e8ff',
+    fontWeight: '600',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  choiceButton: {
+    flex: 1,
+    paddingVertical: 10,
+    backgroundColor: '#3e3e3e',
+    marginHorizontal: 5,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  darkPurpleInput: {
+    backgroundColor: '#2f1d48', 
+    borderColor: '#fe7c3f',
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#ffffff',
+    fontSize: 15,
+    marginBottom: 14,
+  },
+  
   
 });
