@@ -10,12 +10,19 @@ import {
   Image,
   TextInput,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useSegments  } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native'
+import {
+  PanGestureHandler,
+  GestureHandlerStateChangeEvent,
+  PanGestureHandlerEventPayload,
+} from 'react-native-gesture-handler';
+import { PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+
 
 // Define the Patient type with an optional id_image_url field
 type Patient = {
@@ -33,6 +40,29 @@ const defaultImage = require('../../assets/images/defaultProfile.png');
 
 const PatientCard = ({ patient }: { patient: Patient }) => {
   const router = useRouter();
+  const segments = useSegments();
+  
+  const currentTab = segments[1] || 'patients'; // default to 'patients'
+
+const tabRoutes = ['index', 'patients', 'register']; // add 'settings' if admin
+const currentIndex = tabRoutes.indexOf(currentTab);
+
+const threshold = 50;
+const STATE_END = 5;
+
+const handleSwipe = (event: PanGestureHandlerGestureEvent) => {
+  const { translationX, velocityX } = event.nativeEvent;
+  const threshold = 50;
+
+  if (translationX > threshold && Math.abs(velocityX) > 200) {
+    // Swipe left-to-right: go to Analytics
+    router.replace('/(tabs)');
+  } else if (translationX < -threshold && Math.abs(velocityX) > 200) {
+    // Swipe right-to-left: go to Register
+    router.replace('/register');
+  }
+};
+
 
   const formattedDob = new Date(patient.dob).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -41,8 +71,10 @@ const PatientCard = ({ patient }: { patient: Patient }) => {
   });
   
   return (
+<PanGestureHandler onHandlerStateChange={handleSwipe}>
     <TouchableOpacity style={styles.card}
     onPress={() => router.replace(`/patients/${patient.id}`)}>
+      
   <Image
     source={patient.id_image_url ? { uri: `${API_BASE_URL}${patient.id_image_url}` } : defaultImage}
     style={styles.avatar}
@@ -60,7 +92,7 @@ const PatientCard = ({ patient }: { patient: Patient }) => {
     )}
   </View>
 </TouchableOpacity>
-
+</PanGestureHandler>
   );
 };
 
@@ -97,6 +129,11 @@ export default function PatientsScreen() {
     }
   }, []);
   const [searchQuery, setSearchQuery] = useState('');
+  const onSwipe = (e: GestureHandlerStateChangeEvent) => {
+    // Here you can add your swipe logic
+    console.log("Swipe event detected", e);
+  };
+  
 
 
   // Use useFocusEffect to refetch patients every time the screen comes into focus
@@ -137,6 +174,10 @@ export default function PatientsScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.linearGradient}
     >
+      <PanGestureHandler
+  onHandlerStateChange={onSwipe}
+  activeOffsetX={[-50, 50]} // Require a 50-pixel horizontal swipe to trigger navigation
+>
       <View style={styles.overlay}>
         <Text style={styles.title}>Select a Patient</Text>
         <TextInput
@@ -156,6 +197,7 @@ export default function PatientsScreen() {
           contentContainerStyle={styles.listContainer}
         />
       </View>
+      </PanGestureHandler>
     </LinearGradient>
   );
 }

@@ -4,6 +4,22 @@ import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar, Image } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+const jwt_decode = require("jwt-decode") as <T>(token: string) => T;
+
+
+
+const isTokenValid = (token: string) => {
+  try {
+    const { exp } = jwt_decode<{ exp: number }>(token);
+    if (!exp) return false;
+    return exp * 1000 > Date.now(); // Convert exp to ms
+  } catch (e) {
+    return false;
+  }
+};
+
+
+
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,11 +34,13 @@ export default function RootLayout() {
   useEffect(() => {
     const checkLogin = async () => {
       const token = await SecureStore.getItemAsync("userToken");
-      setIsAuthenticated(!!token);
+      const valid = token !== null && isTokenValid(token);
+      setIsAuthenticated(valid);
       setCheckingAuth(false);
     };
     checkLogin();
   }, []);
+  
 
   useEffect(() => {
     if (loaded && !checkingAuth) {

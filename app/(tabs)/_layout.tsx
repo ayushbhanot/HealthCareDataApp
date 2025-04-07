@@ -231,7 +231,9 @@ const TabBarItem = ({ route, isFocused, navigation, label, iconName }: TabBarIte
 export default function TabLayout() {
   const router = useRouter();
   const segments = useSegments();
-  const currentTab = segments[1] || 'index';
+  const rawTab = segments[1] || 'index';
+
+  
 
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -250,12 +252,13 @@ export default function TabLayout() {
   const tabRoutes = isAdmin
     ? allTabRoutes
     : allTabRoutes.filter((tab) => tab !== 'settings');
-
+  const currentTab = tabRoutes.includes(rawTab) ? rawTab : 'index';
   const onSwipe = (e: GestureHandlerStateChangeEvent) => {
     if (e.nativeEvent.state === 5) {
       const { translationX } = e.nativeEvent as unknown as PanGestureHandlerEventPayload;
       const threshold = 50;
       const currentIndex = tabRoutes.indexOf(currentTab);
+if (currentIndex === -1) return; 
 
       if (translationX < -threshold && currentIndex < tabRoutes.length - 1) {
         const newTab = tabRoutes[currentIndex + 1];

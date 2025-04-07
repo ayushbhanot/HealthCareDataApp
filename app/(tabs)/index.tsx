@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#CCCCCC", // lighter gray for subtlety
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 0,
   },
   
   sectionTitle: {
