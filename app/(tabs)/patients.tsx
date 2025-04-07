@@ -37,10 +37,18 @@ type Patient = {
 
 // Import your default image asset
 const defaultImage = require('../../assets/images/defaultProfile.png');
+type PatientCardProps = {
+  patient: Patient;
+  onSwipe: (event: PanGestureHandlerGestureEvent) => void;
+};
 
-const PatientCard = ({ patient }: { patient: Patient }) => {
+
+
+const PatientCard = ({ patient, onSwipe }: PatientCardProps) => {
   const router = useRouter();
   const segments = useSegments();
+  
+
   
   const currentTab = segments[1] || 'patients'; // default to 'patients'
 
@@ -50,18 +58,6 @@ const currentIndex = tabRoutes.indexOf(currentTab);
 const threshold = 50;
 const STATE_END = 5;
 
-const handleSwipe = (event: PanGestureHandlerGestureEvent) => {
-  const { translationX, velocityX } = event.nativeEvent;
-  const threshold = 50;
-
-  if (translationX > threshold && Math.abs(velocityX) > 200) {
-    // Swipe left-to-right: go to Analytics
-    router.replace('/(tabs)');
-  } else if (translationX < -threshold && Math.abs(velocityX) > 200) {
-    // Swipe right-to-left: go to Register
-    router.replace('/register');
-  }
-};
 
 
   const formattedDob = new Date(patient.dob).toLocaleDateString('en-US', {
@@ -69,9 +65,15 @@ const handleSwipe = (event: PanGestureHandlerGestureEvent) => {
     month: 'short',
     day: 'numeric',
   });
+
+  
   
   return (
-<PanGestureHandler onHandlerStateChange={handleSwipe}>
+    <PanGestureHandler
+    onGestureEvent={onSwipe}
+    activeOffsetX={[-10, 10]}  
+    failOffsetY={[-10, 10]}    
+  >
     <TouchableOpacity style={styles.card}
     onPress={() => router.replace(`/patients/${patient.id}`)}>
       
@@ -128,6 +130,17 @@ export default function PatientsScreen() {
       setLoading(false);
     }
   }, []);
+
+  const handleSwipe = (event: PanGestureHandlerGestureEvent) => {
+    const { translationX, velocityX } = event.nativeEvent;
+    const threshold = 50;
+  
+    if (translationX > threshold && Math.abs(velocityX) > 200) {
+      router.replace('/(tabs)');
+    } else if (translationX < -threshold && Math.abs(velocityX) > 200) {
+      router.replace('/register');
+    }
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const onSwipe = (e: GestureHandlerStateChangeEvent) => {
     // Here you can add your swipe logic
@@ -146,10 +159,10 @@ export default function PatientsScreen() {
   const filteredPatients = patients.filter((p) =>
     `${p.first_name} ${p.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   const renderItem = ({ item }: { item: Patient }) => (
-    <PatientCard patient={item} />
+    <PatientCard patient={item} onSwipe={handleSwipe} />
   );
+  
 
   if (loading) {
     return (
@@ -174,10 +187,11 @@ export default function PatientsScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.linearGradient}
     >
-      <PanGestureHandler
-  onHandlerStateChange={onSwipe}
-  activeOffsetX={[-50, 50]} // Require a 50-pixel horizontal swipe to trigger navigation
->
+ <PanGestureHandler
+      onGestureEvent={handleSwipe}
+      activeOffsetX={[-20, 20]} // only respond to horizontal swipes
+      failOffsetY={[-20, 20]}   // allow vertical scrolling
+    >
       <View style={styles.overlay}>
         <Text style={styles.title}>Select a Patient</Text>
         <TextInput
