@@ -130,20 +130,20 @@ export default function PatientDetailScreen() {
   <Text style={styles.sectionTitle}>Medical History</Text>
   <View style={styles.sectionDivider} />
   {medicalHistory.map((entry, index) => (
-    <View key={index} style={{ marginBottom: 10 }}>
-      <Text style={styles.sectionItem}>• Medications: {entry.medications || 'None'}</Text>
-      <Text style={styles.sectionItem}>• Allergies: {entry.allergies || 'None'}</Text>
-      <Text style={styles.sectionItem}>• Eye Injuries: {entry.eye_injuries || 'None'}</Text>
-      <Text style={styles.sectionItem}>• Eye Surgeries: {entry.eye_surgeries || 'None'}</Text>
-      <Text style={styles.sectionItem}>• Social History: {entry.social_history || 'None'}</Text>
-      <Text style={styles.sectionItem}>• Family History: {entry.family_history || 'None'}</Text>
-      <Text style={styles.sectionItem}>• Diabetes: {entry.diabetes ? 'Yes' : 'No'}</Text>
-      <Text style={styles.sectionItem}>• Hypertension: {entry.hypertension ? 'Yes' : 'No'}</Text>
-      <Text style={styles.sectionItem}>• Nearsightedness: {entry.nearsightedness ? 'Yes' : 'No'}</Text>
-      <Text style={styles.sectionItem}>• Farsightedness: {entry.farsightedness ? 'Yes' : 'No'}</Text>
-      <Text style={styles.sectionItem}>• Eye Glasses/Lenses: {entry.eye_glasses_or_lenses ? 'Yes' : 'No'}</Text>
-    </View>
-  ))}
+  <View key={index}>
+    <View style={styles.infoRow}><Text style={styles.label}>Medications</Text><Text style={styles.value}>{entry.medications || 'None'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Allergies</Text><Text style={styles.value}>{entry.allergies || 'None'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Eye Injuries</Text><Text style={styles.value}>{entry.eye_injuries || 'None'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Eye Surgeries</Text><Text style={styles.value}>{entry.eye_surgeries || 'None'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Social History</Text><Text style={styles.value}>{entry.social_history || 'None'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Family History</Text><Text style={styles.value}>{entry.family_history || 'None'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Diabetes</Text><Text style={styles.value}>{entry.diabetes ? 'Yes' : 'No'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Hypertension</Text><Text style={styles.value}>{entry.hypertension ? 'Yes' : 'No'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Nearsightedness</Text><Text style={styles.value}>{entry.nearsightedness ? 'Yes' : 'No'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Farsightedness</Text><Text style={styles.value}>{entry.farsightedness ? 'Yes' : 'No'}</Text></View>
+    <View style={styles.infoRow}><Text style={styles.label}>Glasses/Lenses</Text><Text style={styles.value}>{entry.eye_glasses_or_lenses ? 'Yes' : 'No'}</Text></View>
+  </View>
+))}
 </LinearGradient>
 
 )}
@@ -178,12 +178,19 @@ export default function PatientDetailScreen() {
   <Text style={styles.sectionTitle}>Current Symptoms</Text>
   <View style={styles.sectionDivider} />
   {symptoms && symptoms.length > 0 ? (
-    symptoms.map((symptom, idx) => (
-      <Text key={idx} style={styles.sectionItem}>• {symptom}</Text>
-    ))
-  ) : (
-    <Text style={styles.sectionItem}>None</Text>
-  )}
+  symptoms.map((symptom, idx) => (
+    <View key={idx} style={styles.infoRow}>
+      <Text style={styles.label}>Symptom</Text>
+      <Text style={styles.value}>{symptom}</Text>
+    </View>
+  ))
+) : (
+  <View style={styles.infoRow}>
+    <Text style={styles.label}>Symptom</Text>
+    <Text style={styles.value}>None</Text>
+  </View>
+)}
+
 </LinearGradient>
 
 
