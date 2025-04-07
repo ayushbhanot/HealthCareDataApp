@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
@@ -12,29 +12,42 @@ export default function AddSymptomScreen() {
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const searchSymptoms = async () => {
-        if (!searchTerm.trim()) return;
+    const fetchSymptoms = async (query: string) => {
         try {
-            setLoading(true);
             const token = await SecureStore.getItemAsync('userToken');
-            const response = await fetch(`${API_BASE_URL}/patients/search/symptoms?q=${encodeURIComponent(searchTerm)}`, {
+            const endpoint = query
+                ? `${API_BASE_URL}/patients/search/symptoms?q=${encodeURIComponent(query)}`
+                : `${API_BASE_URL}/patients/search/topSymptoms`;
+
+            const response = await fetch(endpoint, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
+
             const data = await response.json();
             if (response.ok) {
                 setSearchResults(data.symptoms);
             } else {
-                Alert.alert('Error', data.message || 'Search failed');
+                Alert.alert('Error', data.message || 'Failed to fetch symptoms');
             }
         } catch (error) {
-            console.error('Search error:', error);
-            Alert.alert('Error', 'Failed to fetch symptoms');
-        } finally {
-            setLoading(false);
+            console.error('Error fetching symptoms:', error);
+            Alert.alert('Error', 'Failed to connect to the server.');
         }
     };
+
+    useEffect(() => {
+        fetchSymptoms('');
+    }, []);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            fetchSymptoms(searchTerm);
+        }, 300); // debounce for 300ms
+
+        return () => clearTimeout(timeout);
+    }, [searchTerm]);
 
     const addSymptom = async (symptomName: string) => {
         try {
@@ -47,6 +60,7 @@ export default function AddSymptomScreen() {
                 },
                 body: JSON.stringify({ patient_id: patientId, symptom_name: symptomName }),
             });
+
             const data = await response.json();
             if (response.ok) {
                 Alert.alert('Success', data.message);
@@ -70,9 +84,8 @@ export default function AddSymptomScreen() {
                 value={searchTerm}
                 onChangeText={setSearchTerm}
             />
-            <Button title="Search" onPress={searchSymptoms} disabled={loading} />
 
-            {searchResults.length > 0 && (
+            {searchResults.length > 0 ? (
                 <View style={styles.resultsContainer}>
                     <Text style={styles.resultsTitle}>Results:</Text>
                     {searchResults.map((symptom, index) => (
@@ -85,6 +98,8 @@ export default function AddSymptomScreen() {
                         </TouchableOpacity>
                     ))}
                 </View>
+            ) : (
+                <Text style={{ color: '#fff', marginTop: 20 }}>No symptoms found.</Text>
             )}
         </ScrollView>
     );
