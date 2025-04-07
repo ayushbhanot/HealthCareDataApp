@@ -93,6 +93,10 @@ export default function RootLayout() {
     name="questionnaire"
     options={{ headerShown: false }} // 👈 this is the one you needed
   />
+  <Stack.Screen 
+    name="patients/addSymptom" 
+    options={{ headerShown: false }} 
+  />
 </Stack>
 
       <StatusBar />

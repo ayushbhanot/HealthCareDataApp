@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AddSymptomScreen() {
     const { id: patientId } = useLocalSearchParams();
@@ -75,35 +76,44 @@ export default function AddSymptomScreen() {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.replace(`/patients/${patientId}`)} style={styles.backButton}>
+              <Ionicons name="chevron-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+          </View>
+      
+          <ScrollView style={styles.container}>
             <Text style={styles.title}>Search and Add Symptom</Text>
             <TextInput
-                style={styles.input}
-                placeholder="Search for a symptom..."
-                placeholderTextColor="#aaa"
-                value={searchTerm}
-                onChangeText={setSearchTerm}
+              style={styles.input}
+              placeholder="Search for a symptom..."
+              placeholderTextColor="#aaa"
+              value={searchTerm}
+              onChangeText={setSearchTerm}
             />
-
+      
             {searchResults.length > 0 ? (
-                <View style={styles.resultsContainer}>
-                    <Text style={styles.resultsTitle}>Results:</Text>
-                    {searchResults.map((symptom, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={styles.symptomItem}
-                            onPress={() => addSymptom(symptom.symptom_name)}
-                        >
-                            <Text style={styles.symptomText}>{symptom.symptom_name}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
+              <View style={styles.resultsContainer}>
+                <Text style={styles.resultsTitle}>Results:</Text>
+                {searchResults.map((symptom, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.symptomItem}
+                    onPress={() => addSymptom(symptom.symptom_name)}
+                  >
+                    <Text style={styles.symptomText}>{symptom.symptom_name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             ) : (
-                <Text style={{ color: '#fff', marginTop: 20 }}>No symptoms found.</Text>
+              <Text style={{ color: '#fff', marginTop: 20 }}>No symptoms found.</Text>
             )}
-        </ScrollView>
-    );
-}
+          </ScrollView>
+        </>
+      );
+    }      
 
 const styles = StyleSheet.create({
     container: {
@@ -144,4 +154,26 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
     },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 90,
+        width: '100%',
+        paddingTop: 50,
+        backgroundColor: '#241b35',
+        marginBottom: 0,
+        position: 'relative',
+      },
+      backButton: {
+        position: 'absolute',
+        left: 16,
+        top: 50,
+        zIndex: 10,
+      },
+      logo: {
+        height: 36,
+        width: 120,
+        resizeMode: 'contain',
+      },
 });

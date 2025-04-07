@@ -149,7 +149,7 @@ export default function QuestionnaireScreen() {
       style={{ flex: 1 }}
     >
               <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.replace(`/patients`)} style={styles.backButton}>
+          <TouchableOpacity onPress={() => router.replace(`/patients/${patientId}`)} style={styles.backButton}>
             <Ionicons name="chevron-back" size={24} color="#fff" />
           </TouchableOpacity>
           <Image source={require('../assets/images/icon.png')} style={styles.logo} />
