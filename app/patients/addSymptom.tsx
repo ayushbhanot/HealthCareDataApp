@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AddSymptomScreen() {
     const { id: patientId } = useLocalSearchParams();
@@ -75,8 +76,51 @@ export default function AddSymptomScreen() {
         }
     };
 
+    // return (
+    //     <>
+    //       <View style={styles.header}>
+    //         <TouchableOpacity onPress={() => router.replace(`/patients/${patientId}`)} style={styles.backButton}>
+    //           <Ionicons name="chevron-back" size={24} color="#fff" />
+    //         </TouchableOpacity>
+    //         <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+    //       </View>
+      
+    //       <ScrollView style={styles.container}>
+    //         <Text style={styles.title}>Search and Add Symptom</Text>
+    //         <TextInput
+    //           style={styles.input}
+    //           placeholder="Search for a symptom..."
+    //           placeholderTextColor="#aaa"
+    //           value={searchTerm}
+    //           onChangeText={setSearchTerm}
+    //         />
+      
+    //         {searchResults.length > 0 ? (
+    //           <View style={styles.resultsContainer}>
+    //             <Text style={styles.resultsTitle}>Results:</Text>
+    //             {searchResults.map((symptom, index) => (
+    //               <TouchableOpacity
+    //                 key={index}
+    //                 style={styles.symptomItem}
+    //                 onPress={() => addSymptom(symptom.symptom_name)}
+    //               >
+    //                 <Text style={styles.symptomText}>{symptom.symptom_name}</Text>
+    //               </TouchableOpacity>
+    //             ))}
+    //           </View>
+    //         ) : (
+    //           <Text style={{ color: '#fff', marginTop: 20 }}>No symptoms found.</Text>
+    //         )}
+    //       </ScrollView>
+    //     </>
+    //   );
+    // }      
+
     return (
-        <>
+        <LinearGradient
+          colors={['#1b0d2e', '#2b1550', '#3e207a']}
+          style={{ flex: 1 }}
+        >
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.replace(`/patients/${patientId}`)} style={styles.backButton}>
               <Ionicons name="chevron-back" size={24} color="#fff" />
@@ -84,75 +128,44 @@ export default function AddSymptomScreen() {
             <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
           </View>
       
-          <ScrollView style={styles.container}>
-            <Text style={styles.title}>Search and Add Symptom</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Search for a symptom..."
-              placeholderTextColor="#aaa"
-              value={searchTerm}
-              onChangeText={setSearchTerm}
-            />
+          <ScrollView contentContainerStyle={styles.scroll}>
+            <LinearGradient colors={['#240046', '#5a189a', '#9d4edd']} style={styles.card}>
+              <Text style={styles.title}>Search and Add Symptom</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Search for a symptom..."
+                placeholderTextColor="#aaa"
+                value={searchTerm}
+                onChangeText={setSearchTerm}
+              />
       
-            {searchResults.length > 0 ? (
-              <View style={styles.resultsContainer}>
-                <Text style={styles.resultsTitle}>Results:</Text>
-                {searchResults.map((symptom, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.symptomItem}
-                    onPress={() => addSymptom(symptom.symptom_name)}
-                  >
-                    <Text style={styles.symptomText}>{symptom.symptom_name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ) : (
-              <Text style={{ color: '#fff', marginTop: 20 }}>No symptoms found.</Text>
-            )}
+              {searchResults.length > 0 ? (
+                <View style={styles.resultsContainer}>
+                  <Text style={styles.resultsTitle}>Results:</Text>
+                  {searchResults.map((symptom, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.symptomItem}
+                      onPress={() => addSymptom(symptom.symptom_name)}
+                    >
+                      <Text style={styles.symptomText}>{symptom.symptom_name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.noResults}>No symptoms found.</Text>
+              )}
+            </LinearGradient>
           </ScrollView>
-        </>
-      );
-    }      
+        </LinearGradient>
+      );}
 
+      
 const styles = StyleSheet.create({
     container: {
         padding: 20,
         backgroundColor: '#1b0d2e',
         flex: 1,
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fe7c3f',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    input: {
-        backgroundColor: '#fff',
-        color: '#000',
-        borderRadius: 10,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        marginBottom: 10,
-    },
-    resultsContainer: {
-        marginTop: 20,
-    },
-    resultsTitle: {
-        fontSize: 18,
-        color: '#fff',
-        marginBottom: 10,
-    },
-    symptomItem: {
-        padding: 12,
-        backgroundColor: '#3e2f5a',
-        marginBottom: 8,
-        borderRadius: 8,
-    },
-    symptomText: {
-        color: '#fff',
-        fontSize: 16,
     },
     header: {
         flexDirection: 'row',
@@ -176,4 +189,70 @@ const styles = StyleSheet.create({
         width: 120,
         resizeMode: 'contain',
       },
+      scroll: {
+        padding: 20,
+        paddingBottom: 40,
+      },
+      card: {
+        borderRadius: 20,
+        padding: 20,
+        width: '100%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 5,
+        borderColor: '#a81ee6',
+        borderWidth: 1,
+      },
+      title: {
+        backgroundColor: '#fe7c3f',
+        color: '#fff',
+        fontSize: 20,
+        fontWeight: 'bold',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        alignSelf: 'center',
+        marginBottom: 24,
+        overflow: 'hidden',
+      },
+      input: {
+        backgroundColor: '#fff',
+        color: '#000',
+        borderRadius: 12,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        fontSize: 16,
+        marginBottom: 16,
+      },
+      resultsContainer: {
+        marginTop: 10,
+      },
+      resultsTitle: {
+        fontSize: 18,
+        color: '#fff',
+        fontWeight: '600',
+        marginBottom: 12,
+      },
+      symptomItem: {
+        padding: 14,
+        backgroundColor: '#4b3266',
+        marginBottom: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#fe7c3f',
+      },
+      symptomText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
+      },
+      noResults: {
+        color: '#aaa',
+        marginTop: 20,
+        textAlign: 'center',
+        fontSize: 15,
+      },
+      
 });
