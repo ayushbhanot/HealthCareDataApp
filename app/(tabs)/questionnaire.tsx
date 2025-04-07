@@ -1,121 +1,222 @@
 import React, { useState } from 'react';
-import { View, Text, Button, ScrollView, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import {
+  View,
+  Text,
+  Button,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  TextInput,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
 
 export default function QuestionnaireScreen() {
-  const router = useRouter(); // Navigation instance
+  const router = useRouter();
+  const { id: patientId, history_id } = useLocalSearchParams();
 
-  const [lossOfVision, setLossOfVision] = useState<boolean | null>(null);
-  const [whichEye, setWhichEye] = useState<string | null>(null);
-  const [pain, setPain] = useState<boolean | null>(null);
-  const [redness, setRedness] = useState<boolean | null>(null);
-  const [watering, setWatering] = useState<boolean | null>(null);
-  const [dischargeType, setDischargeType] = useState<string | null>(null);
-  const [itching, setItching] = useState<boolean | null>(null);
-  const [htn, setHtn] = useState<boolean | null>(null);
-  const [dm, setDm] = useState<boolean | null>(null);
-  const [heartDisease, setHeartDisease] = useState<boolean | null>(null);
-  const [allergyDrops, setAllergyDrops] = useState<boolean | null>(null);
+  const [medications, setMedications] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [eye_injuries, setEyeInjuries] = useState('');
+  const [eye_surgeries, setEyeSurgeries] = useState('');
+  const [social_history, setSocialHistory] = useState('');
+  const [family_history, setFamilyHistory] = useState('');
 
-  // Function to submit (without patient ID)
-  const submitSymptoms = async () => {
-    const symptoms = [];
+  const [diabetes, setDiabetes] = useState<boolean | null>(null);
+  const [hypertension, setHypertension] = useState<boolean | null>(null);
+  const [nearsightedness, setNearsightedness] = useState<boolean | null>(null);
+  const [farsightedness, setFarsightedness] = useState<boolean | null>(null);
+  const [eye_glasses_or_lenses, setEyeGlassesOrLenses] = useState<boolean | null>(null);
 
-    if (lossOfVision) symptoms.push('Loss of Vision');
-    if (whichEye) symptoms.push(`Vision Loss in ${whichEye} Eye`);
-    if (pain) symptoms.push('Pain in Eye');
-    if (redness) symptoms.push('Redness in Eye');
-    if (watering) symptoms.push('Watering in Eye');
-    if (dischargeType) symptoms.push(`Discharge Type: ${dischargeType}`);
-    if (itching) symptoms.push('Itching in Eye');
-    if (htn) symptoms.push('Hypertension');
-    if (dm) symptoms.push('Diabetes');
-    if (heartDisease) symptoms.push('Heart Disease');
-    if (allergyDrops) symptoms.push('Allergy to Drops');
-
-    if (symptoms.length === 0) {
-      Alert.alert('Error', 'Please select at least one symptom before submitting.');
-      return;
-    }
+  const handleSubmit = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+    const payload = {
+      patient_id: patientId,
+      medications,
+      allergies,
+      eye_injuries,
+      eye_surgeries,
+      social_history,
+      family_history,
+      diabetes,
+      hypertension,
+      nearsightedness,
+      farsightedness,
+      eye_glasses_or_lenses,
+    };
 
     try {
-      const token = await SecureStore.getItemAsync("userToken");
-      const response = await fetch(`${API_BASE_URL}/save-symptoms`, {
+      const response = await fetch(`${API_BASE_URL}/patients/medicalHistory`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ symptoms }), // No patient ID included
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
       if (response.ok) {
-        Alert.alert('Success', 'Symptoms saved successfully.');
+        Alert.alert('Success', data.message || 'Medical history submitted.');
+        router.back();
       } else {
-        Alert.alert('Error', data.message || 'Failed to save symptoms.');
+        Alert.alert('Error', data.message || 'Failed to submit.');
       }
     } catch (error) {
-      console.error('Error submitting symptoms:', error);
-      Alert.alert('Error', 'Failed to connect to the server.');
+      console.error('Submit error:', error);
+      Alert.alert('Error', 'Failed to connect.');
     }
   };
 
+  const handleUpdate = async () => {
+    const token = await SecureStore.getItemAsync('userToken');
+    const payload = {
+      medications,
+      allergies,
+      eye_injuries,
+      eye_surgeries,
+      social_history,
+      family_history,
+      diabetes,
+      hypertension,
+      nearsightedness,
+      farsightedness,
+      eye_glasses_or_lenses,
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/patients/updateMedicalHistory/${history_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', data.message || 'Medical history updated.');
+        router.back();
+      } else {
+        Alert.alert('Error', data.message || 'Failed to update.');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      Alert.alert('Error', 'Failed to connect.');
+    }
+  };
+
+  const renderBooleanButtons = (label: string, value: boolean | null, setValue: (v: boolean) => void) => (
+    <View style={styles.booleanContainer}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.buttonRow}>
+        <Button title="Yes" onPress={() => setValue(true)} color={value === true ? '#4caf50' : undefined} />
+        <Button title="No" onPress={() => setValue(false)} color={value === false ? '#f44336' : undefined} />
+      </View>
+    </View>
+  );
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.header}>Patient Symptoms Collection</Text>
+      <Text style={styles.header}>Medical History</Text>
 
-      {/* Back Button */}
-      <Button title="Back to Patients" onPress={() => router.back()} />
+      <TextInput
+        placeholder="Medications"
+        style={styles.input}
+        value={medications}
+        onChangeText={setMedications}
+        placeholderTextColor="#999"
+      />
+      <TextInput
+        placeholder="Allergies"
+        style={styles.input}
+        value={allergies}
+        onChangeText={setAllergies}
+        placeholderTextColor="#999"
+      />
+      <TextInput
+        placeholder="Eye Injuries"
+        style={styles.input}
+        value={eye_injuries}
+        onChangeText={setEyeInjuries}
+        placeholderTextColor="#999"
+      />
+      <TextInput
+        placeholder="Eye Surgeries"
+        style={styles.input}
+        value={eye_surgeries}
+        onChangeText={setEyeSurgeries}
+        placeholderTextColor="#999"
+      />
+      <TextInput
+        placeholder="Social History"
+        style={styles.input}
+        value={social_history}
+        onChangeText={setSocialHistory}
+        placeholderTextColor="#999"
+      />
+      <TextInput
+        placeholder="Family History"
+        style={styles.input}
+        value={family_history}
+        onChangeText={setFamilyHistory}
+        placeholderTextColor="#999"
+      />
 
-      {/* Medical History - Loss of Vision */}
-      <Text style={styles.question}>Loss of Vision?</Text>
-      <View style={styles.buttonContainer}>
-        <Button title="Yes" onPress={() => setLossOfVision(true)} />
-        <Button title="No" onPress={() => setLossOfVision(false)} />
-      </View>
+      {renderBooleanButtons('Diabetes', diabetes, setDiabetes)}
+      {renderBooleanButtons('Hypertension', hypertension, setHypertension)}
+      {renderBooleanButtons('Nearsightedness', nearsightedness, setNearsightedness)}
+      {renderBooleanButtons('Farsightedness', farsightedness, setFarsightedness)}
+      {renderBooleanButtons('Eye Glasses or Lenses', eye_glasses_or_lenses, setEyeGlassesOrLenses)}
 
-      {lossOfVision && (
-        <>
-          <Text style={styles.question}>Which Eye?</Text>
-          <View style={styles.buttonContainer}>
-            <Button title="R" onPress={() => setWhichEye('R')} />
-            <Button title="L" onPress={() => setWhichEye('L')} />
-            <Button title="Both" onPress={() => setWhichEye('Both')} />
-          </View>
-
-          <Text style={styles.question}>Pain?</Text>
-          <View style={styles.buttonContainer}>
-            <Button title="Yes" onPress={() => setPain(true)} />
-            <Button title="No" onPress={() => setPain(false)} />
-          </View>
-        </>
-      )}
-
-      {/* Systemic History */}
-      <Text style={styles.question}>Hypertension (HTN)?</Text>
-      <View style={styles.buttonContainer}>
-        <Button title="Yes" onPress={() => setHtn(true)} />
-        <Button title="No" onPress={() => setHtn(false)} />
-      </View>
-
-      {/* Submit Button */}
       <View style={styles.submitContainer}>
-        <Button title="Submit Symptoms" onPress={submitSymptoms} />
+        {!history_id && (
+          <Button title="Submit Medical History" onPress={handleSubmit} />
+        )}
+        {history_id && (
+          <Button title="Update Medical History" onPress={handleUpdate} />
+        )}
       </View>
-
-      <Text style={styles.footer}>End of Form</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { padding: 20 },
-  header: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-  question: { fontSize: 18, marginTop: 10 },
-  buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  submitContainer: { marginTop: 20, alignItems: 'center' },
-  footer: { marginTop: 20, textAlign: 'center', fontSize: 18, fontWeight: 'bold' },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#fff',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    color: '#000',
+  },
+  submitContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    gap: 10,
+  },
+  booleanContainer: {
+    //marginTop: 10,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 6,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    //justifyContent: 'space-between',
+  },
 });

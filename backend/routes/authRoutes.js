@@ -147,4 +147,47 @@ router.delete("/:id", authenticateUser, async (req, res) => {
   }
 });
 
+// Delete a User (Admin Only)
+router.delete("/users/:id", authenticateUser, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Only admins can perform this action
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Only admins can delete users." });
+    }
+
+    // Prevent self-deletion (optional but smart)
+    if (req.user.userId === userId) {
+      return res.status(400).json({ message: "You cannot delete your own account." });
+    }
+
+    const user = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
+    if (user.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    res.json({ message: "User account deleted successfully" });
+  } catch (error) {
+    console.error("❌ Error deleting user:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// List all users (for admin, when using the delete functionality)
+router.get("/admin/users", authenticateUser, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied." });
+  }
+
+  try {
+    const users = await pool.query("SELECT id, name, email, role FROM users WHERE id != $1", [req.user.userId]);
+    res.json({ users: users.rows });
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
