@@ -99,6 +99,21 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
+// List all users (for admin, when using the delete functionality)
+router.get("/admin/users", authenticateUser, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied." });
+  }
+
+  try {
+    const users = await pool.query("SELECT id, name, email, role FROM users WHERE id != $1", [req.user.userId]);
+    res.json({ users: users.rows });
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Forgot Password (Simplified - send reset link)
 router.post("/forgot-password", async (req, res) => {
   try {
@@ -175,19 +190,5 @@ router.delete("/users/:id", authenticateUser, async (req, res) => {
   }
 });
 
-// List all users (for admin, when using the delete functionality)
-router.get("/admin/users", authenticateUser, async (req, res) => {
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied." });
-  }
-
-  try {
-    const users = await pool.query("SELECT id, name, email, role FROM users WHERE id != $1", [req.user.userId]);
-    res.json({ users: users.rows });
-  } catch (err) {
-    console.error("Error fetching users:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
 module.exports = router;

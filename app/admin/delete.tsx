@@ -7,10 +7,14 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants/env';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 export default function DeleteAccountScreen() {
   const [users, setUsers] = useState<any[]>([]);
@@ -79,29 +83,50 @@ export default function DeleteAccountScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Delete User Accounts</Text>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.userRow}>
-            <View>
-              <Text style={styles.userText}>{item.name} ({item.role})</Text>
-              <Text style={styles.email}>{item.email}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDelete(item.id)}
+    <>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.replace(`/(tabs)/settings`)} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+      </View>
+  
+      <View style={styles.container}>
+        <Text style={styles.title}>Delete User Accounts</Text>
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <LinearGradient
+              colors={['#1b0d2e', '#2b1550', '#3e207a']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.card}
             >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-    </View>
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.initials}>
+                  {item.name?.charAt(0)?.toUpperCase() || 'U'}
+                </Text>
+              </View>
+          
+              <View style={styles.info}>
+  <Text style={styles.name}>{item.name}</Text>
+  <Text style={styles.roleText}>Role: {item.role}</Text>
+  <Text style={styles.subText}>{item.email}</Text>
+</View>
+
+
+          
+              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id)}>
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          )}
+        />
+      </View>
+    </>
   );
-}
+}  
 
 const styles = StyleSheet.create({
   container: {
@@ -139,17 +164,106 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   email: {
-    fontSize: 14,
+    fontSize: 17,
     color: '#aaa',
   },
+  header: {
+    height: 90,
+    paddingTop: 50,
+    backgroundColor: '#241b35',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    top: 50,
+    zIndex: 10,
+  },
+  logo: {
+    height: 36,
+    width: 120,
+    resizeMode: 'contain',
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2f2542',
+    borderRadius: 14,
+    padding: 14,
+    //marginHorizontal: 8,
+    marginBottom: 14,
+    borderColor: '#a81ee6',
+    borderWidth: 1.2,
+    shadowColor: '#a81ee6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
+    maxWidth: '100%',
+    alignSelf: 'center',
+  },
+  avatarPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#5a189a',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: '#fe7c3f',
+  },
+  initials: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+
+  name: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+
+  roleText: {
+    fontSize: 13,
+    color: '#a5f3fc',
+    fontWeight: 'bold',
+  },
+  info: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingRight: 10,
+  },
+  
+  subText: {
+    fontSize: 13,
+    color: '#fbbf24',
+    flexWrap: 'wrap',
+    flexShrink: 1,
+    lineHeight: 17,
+  },
+  
   deleteButton: {
     backgroundColor: '#dc2626',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 26,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginLeft: 'auto',
   },
+  
   deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 15,
   },
+  
+  
+  
 });
