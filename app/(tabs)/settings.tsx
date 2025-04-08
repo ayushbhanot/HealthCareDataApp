@@ -16,24 +16,33 @@ export default function SettingsScreen() {
         <Text style={styles.title}>Admin Settings</Text>
         <Text style={styles.subtitle}>Configure your account and user access</Text>
 
-        {/* Manage Accounts Button */}
+        {/* Register Account Button */}
         <TouchableOpacity
           style={styles.button}
-          //onPress={() => router.push('/admin/manageAccounts')} // change route as needed
+          onPress={() => router.replace('/admin/registerUser')}
         >
-          <Text style={styles.buttonText}>Manage Accounts</Text>
+          <Text style={styles.buttonText}>Register Account</Text>
+        </TouchableOpacity>
+
+        {/* Delete Account Button */}
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={() => router.replace('/admin/delete')}
+        >
+          <Text style={styles.buttonText}>Delete Account</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   innerContainer: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: 80,
     alignItems: 'center',
     paddingHorizontal: 20,
   },
@@ -65,6 +74,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 4,
+    marginBottom: 16,
+    width: 250,
+    alignItems: 'center',
+  },
+  deleteButton: {
+    backgroundColor: '#dc2626',
   },
   buttonText: {
     color: '#fff',

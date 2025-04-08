@@ -97,6 +97,14 @@ export default function RootLayout() {
     name="patients/addSymptom" 
     options={{ headerShown: false }} 
   />
+   <Stack.Screen 
+    name="admin/delete" 
+    options={{ headerShown: false }} 
+  />
+   <Stack.Screen 
+    name="admin/registerUser" 
+    options={{ headerShown: false }} 
+  />
 </Stack>
 
       <StatusBar />
