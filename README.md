@@ -112,12 +112,6 @@ ___
 
 ---
 
-## 📦 Installation
-
-No setup instructions are provided, as this is a production-ready mobile app. The backend services and the app are already hosted and operational, with automatic syncing with the cloud.
-
----
-
 ## 🔧 Tech Stack
 
 * **Frontend**: React Native (Expo), Lottie for animations
