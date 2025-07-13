@@ -88,11 +88,11 @@ ___
 
 ## 🔑 Key Challenges and Solutions
 
-* **Handling Real-time Data Sync**: We faced challenges in ensuring real-time data synchronization between the mobile app and the backend server, especially when dealing with large datasets in a healthcare setting. This was solved by optimizing the upload process and using asynchronous API calls for efficient data handling.
+* **Handling Real-time Data Sync**: I faced challenges in ensuring real-time data synchronization between the mobile app and the backend server, especially when dealing with large datasets in a healthcare setting. This was solved by optimizing the upload process and using asynchronous API calls for efficient data handling.
 
 * **Photo Upload**: Implementing an efficient method to upload patient photos while ensuring that other data (e.g., forms) were submitted simultaneously required using **Multer** for image handling and **FormData** to submit everything as a unified request.
 
-* **User Interface with DataCare Branding**: Creating a smooth user experience with custom animations and a professional UI layout was critical to meet DataCare LLC's branding requirements. We used **Lottie** animations to enhance the visual appeal and guide users through the registration process.
+* **User Interface with DataCare Branding**: Creating a smooth user experience with custom animations and a professional UI layout was critical to meet DataCare LLC's branding requirements. I used **Lottie** animations to enhance the visual appeal and guide users through the registration process.
 
 ---
 
