@@ -27,6 +27,23 @@ The **Data HealthCare App** is a mobile solution aimed at healthcare camps, enab
 
 ---
 
+<h2>📱 UI Previews</h2>
+
+<table>
+  <tr>
+    <th>🏠 Home Screen</th>
+    <th>➕ Patient Registration</th>
+    <th>📋 Medical History Entry</th>
+  </tr>
+  <tr>
+    <td><img src="assets/gif/home.gif" width="300" height="600" /></td>
+    <td><img src="assets/gif/register_patient.gif" width="300" height="600" /></td>
+    <td><img src="assets/gif/medical_history.gif" width="300" height="600" /></td>
+  </tr>
+</table>
+
+___
+
 ## 🛠️ Tech Stack and Architecture
 
 ### Frontend:
@@ -67,7 +84,7 @@ The **Data HealthCare App** is a mobile solution aimed at healthcare camps, enab
 
    * All collected data is securely synchronized with the centralized database on GCP to allow for easy access and analysis.
 
----
+___
 
 ## 🔑 Key Challenges and Solutions
 
@@ -118,5 +135,3 @@ For further information or questions, feel free to reach out:
 * **GitHub**: [ayushbhanot](https://github.com/ayushbhanot)
 
 ---
-
-Let me know if you need any further adjustments or additional sections in the README!
